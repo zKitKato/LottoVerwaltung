@@ -156,3 +156,42 @@ Die Anwendung wird auf **Apache Tomcat 9** deployt und mit **Java 17** kompilier
    ```bash
    mvn clean install
    ```
+
+
+--- 
+
+
+## Online Docs und API's
+
+### Apache
+
+[Maven Guides](https://maven.apache.org/guides/introduction/introduction-to-the-pom.html)
+
+[Tomcat 9 Configuration Documentation](https://tomcat.apache.org/tomcat-9.0-doc/config/index.html)
+
+---
+### Java
+
+[Java 17 Doc](https://docs.oracle.com/en/java/javase/17/)
+
+[Java EE JSP](https://docs.oracle.com/javaee/5/tutorial/doc/bnajo.html)
+
+[JavaDoc H2 Database](https://javadoc.io/doc/com.h2database/h2/latest/index.html)
+
+
+---
+
+### Bootstrap
+
+[Java Guides Bootstrap](https://www.javaguides.net/2020/01/add-bootstrap-to-jsp-page.html)
+
+
+
+--- 
+
+### API's
+
+[API Doc Tomcat](https://tomcat.apache.org/tomcat-9.0-doc/api/index.html)
+
+[Lotto API](https://lotto-brain.de/eurojackpot-und-lotto-api-offizielle-daten-per-schnittstelle/)
+
