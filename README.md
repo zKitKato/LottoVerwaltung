@@ -12,7 +12,7 @@ Die Anwendung wird auf **Apache Tomcat 9** deployt und mit **Java 17** kompilier
 
 ## Projektstruktur
 
-
+```
 .
 ├── backend
 │   ├── pom.xml
@@ -126,6 +126,7 @@ Die Anwendung wird auf **Apache Tomcat 9** deployt und mit **Java 17** kompilier
 │       └── test-classes
 ├── pom.xml
 └── README.md
+```
 
 > Hinweis: Die `target`-Ordner enthalten die kompilierten Klassen und WAR-Dateien. Diese werden beim Build erzeugt.
 
