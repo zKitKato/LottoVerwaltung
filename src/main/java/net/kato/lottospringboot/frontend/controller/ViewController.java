@@ -8,6 +8,6 @@ public class ViewController {
 
     @GetMapping("/")
     public String index() {
-        return "index"; // Spring MVC sucht automatisch nach /WEB-INF/jsp/index.jsp
+        return "main-layout"; // Spring sucht /WEB-INF/jsp/main-layout.jsp
     }
 }

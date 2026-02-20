@@ -1,29 +1,24 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<!-- Topbar -->
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-    <div class="container-fluid">
+    <!-- Topbar Search -->
+    
+    <%@include file="top-navbar-parts/search-bar.jsp" %>
 
-        <a class="navbar-brand" href="/">Lotto</a>
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav ml-auto">
 
-        <div class="collapse navbar-collapse">
+        <!-- Alerts -->
 
-            <ul class="navbar-nav">
+        <%@include file="top-navbar-parts/alerts.jsp" %>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Dashboard</a>
-                </li>
+        <div class="topbar-divider d-none d-sm-block"></div>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/spieler">Mitspieler</a>
-                </li>
+        <!-- User Information -->
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/spiele">Spiele</a>
-                </li>
+        <%@ include file="top-navbar-parts/user-Information.jsp" %>
 
-            </ul>
-
-        </div>
-
-    </div>
+    </ul>
 
 </nav>
+<!-- End of Topbar -->
