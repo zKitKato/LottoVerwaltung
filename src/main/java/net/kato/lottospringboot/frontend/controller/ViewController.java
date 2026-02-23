@@ -8,6 +8,12 @@ public class ViewController {
 
     @GetMapping("/")
     public String index() {
-        return "main-layout"; // Spring sucht /WEB-INF/jsp/main-layout.jsp
+        return "main-layout"; // loads /WEB-INF/jsp/main-layout.jsp
+    }
+
+    // Redirect endpoint for documentation
+    @GetMapping("/documentation")
+    public String docs() {
+        return "redirect:http://localhost:3000/docs"; // change path to your Docusaurus landing doc
     }
 }

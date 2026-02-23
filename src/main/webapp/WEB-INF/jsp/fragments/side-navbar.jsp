@@ -19,91 +19,23 @@
 
     <hr class="sidebar-divider">
 
-    <!-- Heading -->
-    <div class="sidebar-heading">Interface</div>
+    <!-- 1 Section of the Sidebar (Interface) -->
 
-    <!-- Nav Item - Components -->
-    <li class="nav-item">
-        <a class="nav-link collapsed"
-           href="#"
-           data-toggle="collapse"
-           data-target="#collapseComponents"
-           aria-expanded="true"
-           aria-controls="collapseComponents">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Components</span>
-        </a>
-        <div id="collapseComponents" class="collapse" aria-labelledby="headingComponents"
-             data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Components:</h6>
-                <a class="collapse-item" href="#">Buttons</a>
-                <a class="collapse-item" href="#">Cards</a>
-            </div>
-        </div>
-    </li>
-
-    <!-- Nav Item - Utilities -->
-    <li class="nav-item">
-        <a class="nav-link collapsed"
-           href="#"
-           data-toggle="collapse"
-           data-target="#collapseUtilities"
-           aria-expanded="true"
-           aria-controls="collapseUtilities">
-            <i class="fas fa-fw fa-wrench"></i>
-            <span>Utilities</span>
-        </a>
-        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Utilities:</h6>
-                <a class="collapse-item" href="#">Colors</a>
-                <a class="collapse-item" href="#">Borders</a>
-                <a class="collapse-item" href="#">Animations</a>
-                <a class="collapse-item" href="#">Other</a>
-            </div>
-        </div>
-    </li>
+    <%@include file="side-navbar-parts/interface-section.jsp" %>
 
     <hr class="sidebar-divider">
 
-    <!-- Heading -->
-    <div class="sidebar-heading">Addons</div>
+    <!-- 2 Section of the Sidebar (Addons) -->
 
-    <!-- Pages Collapse Menu -->
-    <li class="nav-item">
-        <a class="nav-link collapsed"
-           href="#"
-           data-toggle="collapse"
-           data-target="#collapsePages"
-           aria-expanded="true"
-           aria-controls="collapsePages">
-            <i class="fas fa-fw fa-folder"></i>
-            <span>Pages</span>
-        </a>
-        <div id="collapsePages"
-             class="collapse"
-             aria-labelledby="headingPages"
-             data-parent="#accordionSidebar">
-            <!-- Screens to implement
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Login Screens:</h6>
-                <a class="collapse-item" href="#">Login</a>
-                <a class="collapse-item" href="#">Register</a>
-                <a class="collapse-item" href="#">Forgot Password</a>
-                <div class="collapse-divider"></div>
-                <h6 class="collapse-header">Other Pages:</h6>
-                <a class="collapse-item" href="#">404 Page</a>
-                <a class="collapse-item" href="#">Blank Page</a>
-            </div>
-            -->
-        </div>
-    </li>
+
+    <%@include file="side-navbar-parts/addons-section.jsp" %>
 
     <hr class="sidebar-divider d-none d-md-block">
-    <!--Heading of Docs self wrote-->
-    <div class="sidebar-heading">
-        Documentation
-    </div>
+
+    <!-- Documentation section-->
+
+    <%@include file="side-navbar-parts/documentation-section.jsp" %>
+
+    
 </ul>
 <!-- End of Sidebar -->

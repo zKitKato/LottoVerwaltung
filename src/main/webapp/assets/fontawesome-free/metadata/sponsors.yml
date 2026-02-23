@@ -485,8 +485,8 @@ reacteurope:
   url: 'https://www.react-europe.org'
 readme-io:
   icons:
-    - readme
-  label: Readme.io
+    - readme.svg
+  label: Readme
   url: 'http://readme.io'
 red-river:
   icons:

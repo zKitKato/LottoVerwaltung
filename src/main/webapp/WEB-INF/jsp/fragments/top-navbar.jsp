@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
     <!-- Topbar Search -->
-    
+
     <%@include file="top-navbar-parts/search-bar.jsp" %>
 
     <!-- Topbar Navbar -->
