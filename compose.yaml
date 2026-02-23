@@ -1,26 +1,31 @@
 services:
   backend:
-    build: ./src
-    ports:
-      - "${SERVER_PORT}:8080"
+    image: maven:3.9.0-eclipse-temurin-17
+    working_dir: /app
     volumes:
-      - "${BACKEND_VOLUME}:/app/database"
-      - ./src:/app
+      - .:/app
+    ports:
+      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-    command: [ "mvn", "spring-boot:run" ]
+      - SPRING_SERVER_ADDRESS=0.0.0.0
+    command: [ "./mvnw", "spring-boot:run" ]
 
   docusaurus:
-    build: ./docusaurus
+    build:
+      context: ./docusaurus
+      dockerfile: Dockerfile
     ports:
       - "${DOCUSAURUS_PORT}:3000"
     volumes:
       - ./docusaurus:/app
+      - "${DOCUSAURUS_VOLUME}:/app/node_modules"
     working_dir: /app
     command: [ "npm", "run", "start" ]
 
 volumes:
   backend-data:
+  docusaurus-data:
