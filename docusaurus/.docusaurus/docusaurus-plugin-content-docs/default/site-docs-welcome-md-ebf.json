@@ -1,0 +1,23 @@
+{
+  "id": "welcome",
+  "title": "Übersicht",
+  "description": "",
+  "source": "@site/docs/welcome.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "slug": "/",
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "part1",
+    "permalink": "/docs/Guide/part1"
+  }
+}
