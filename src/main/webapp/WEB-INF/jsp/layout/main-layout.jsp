@@ -20,24 +20,24 @@
 <div id="wrapper">
 
     <!-- Sidebar -->
-    <%@ include file="fragments/side-navbar.jsp" %>
+    <%@ include file="../fragments/side-navbar.jsp" %>
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
 
             <!-- Topbar -->
-            <%@ include file="fragments/top-navbar.jsp" %>
+            <%@ include file="../fragments/top-navbar.jsp" %>
 
             <!-- Page Content -->
             <div class="container-fluid">
-                <jsp:include page="/WEB-INF/jsp/index.jsp"/>
+                <jsp:include page="/WEB-INF/jsp/pages/index.jsp"/>
             </div>
 
         </div>
 
         <!-- Footer -->
-        <%@ include file="fragments/footer.jsp" %>
+        <%@ include file="../fragments/footer.jsp" %>
     </div>
 
 </div>

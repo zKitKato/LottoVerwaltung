@@ -15,6 +15,7 @@ services:
     command: [ "./mvnw", "spring-boot:run" ]
 
   docusaurus:
+    user: 1000:1001
     build:
       context: ./docusaurus
       dockerfile: Dockerfile

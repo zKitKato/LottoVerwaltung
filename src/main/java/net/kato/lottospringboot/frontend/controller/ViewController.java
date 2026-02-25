@@ -6,9 +6,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    @GetMapping("/")
+    @GetMapping("/login")
+    public String login() {
+        return "pages/login";
+    }
+
+    @GetMapping("/home")
     public String index() {
-        return "main-layout"; // loads /WEB-INF/jsp/main-layout.jsp
+        return "layout/main-layout"; // loads /WEB-INF/jsp/main-layout.jsp
     }
 
     // Redirect endpoint for documentation
