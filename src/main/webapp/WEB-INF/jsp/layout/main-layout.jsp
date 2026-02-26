@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,7 @@
 
             <!-- Page Content -->
             <div class="container-fluid">
-                <jsp:include page="/WEB-INF/jsp/pages/index.jsp"/>
+                <jsp:include page="/WEB-INF/jsp/pages/dashboard.jsp"/>
             </div>
 
         </div>

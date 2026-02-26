@@ -1,0 +1,54 @@
+{
+  "lotto_gewinnzahlen": {
+    "Datum": "25.02.2026",
+    "Ziehung": "Mittwoch",
+    "Superzahl": 8,
+    "Zahl": [
+      25,
+      9,
+      13,
+      37,
+      46,
+      30
+    ]
+  },
+  "eurojackpot_gewinnzahlen": {
+    "Datum": "24.02.2026",
+    "Ziehung": "Dienstag",
+    "Eurozahl": [
+      9,
+      2
+    ],
+    "Zahl": [
+      48,
+      26,
+      38,
+      4,
+      5
+    ]
+  },
+  "lotto_jackpot": {
+    "DatumNaechsteZiehung": "25.02.2026",
+    "ErwarteterJackpot1": "21000000.00",
+    "ErwarteterJackpot2": "1000000.00",
+    "NaechsteZiehung": "Mittwoch"
+  },
+  "eurojackpot_jackpot": {
+    "DatumNaechsteZiehung": "27.02.2026",
+    "ErwarteterJackpot1": "73000000.00",
+    "ErwarteterJackpot2": "2000000.00",
+    "NaechsteZiehung": "Freitag"
+  },
+  "lotto_ziehung": {
+    "AnnahmeschlussDatum": "28.02.2026",
+    "AnnahmeschlussUhrzeit": "19:00:00",
+    "Datum": "28.02.2026",
+    "Uhrzeit": "19:25:00"
+  },
+  "eurojackpot_ziehung": {
+    "AnnahmeschlussDatum": "27.02.2026",
+    "AnnahmeschlussUhrzeit": "19:00:00",
+    "Datum": "27.02.2026",
+    "Uhrzeit": "20:00:00"
+  }
+}

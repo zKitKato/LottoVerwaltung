@@ -9,4 +9,5 @@ public class LottoService {
         return "Lotto System läuft!";
     }
 
+
 }
