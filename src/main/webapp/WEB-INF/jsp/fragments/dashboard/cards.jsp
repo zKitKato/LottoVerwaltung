@@ -9,7 +9,6 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="h5 font-weight-bold text-primary text-uppercase mb-1">
-                            ${gameDraw.gameName}
                         </div>
                         <div class=" mb-0 font-weight-bold text-gray-800">
                             Naechste Ziehung: ${gameDraw.nextDeadlineDate}

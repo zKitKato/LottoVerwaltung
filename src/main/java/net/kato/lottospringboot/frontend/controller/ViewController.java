@@ -1,7 +1,7 @@
 package net.kato.lottospringboot.frontend.controller;
 
-import net.kato.lottospringboot.backend.dao.GameDrawRepository;
-import net.kato.lottospringboot.backend.model.GameDraw;
+import net.kato.lottospringboot.backend.dao.GameDrawEuroRepository;
+import net.kato.lottospringboot.backend.model.GameDrawEuro;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    private final GameDrawRepository gameDrawRepository;
+    private final GameDrawEuroRepository gameDrawRepository;
 
-    public ViewController(GameDrawRepository gameDrawRepository) {
+    public ViewController(GameDrawEuroRepository gameDrawRepository) {
         this.gameDrawRepository = gameDrawRepository;
     }
 
@@ -28,11 +28,10 @@ public class ViewController {
         if (userDetails != null) {
             model.addAttribute("username", userDetails.getUsername());
         }
-        GameDraw letzteZiehung = gameDrawRepository.findTopByOrderByIdDesc();
+        GameDrawEuro letzteZiehung = gameDrawRepository.findTopByOrderByIdDesc();
 
         if (letzteZiehung != null) {
             model.addAttribute("gameDraw", letzteZiehung);
-            model.addAttribute("gameName", letzteZiehung.getGameName());
             model.addAttribute("gameDate", letzteZiehung.getGameDate());
             model.addAttribute("jackpot", letzteZiehung.getJackpot());
             model.addAttribute("nextDeadlineDate", letzteZiehung.getNextDeadlineDate());

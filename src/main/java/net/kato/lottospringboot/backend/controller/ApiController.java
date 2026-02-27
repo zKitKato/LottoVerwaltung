@@ -1,7 +1,9 @@
 package net.kato.lottospringboot.backend.controller;
 
-import net.kato.lottospringboot.backend.dao.GameDrawRepository;
-import net.kato.lottospringboot.backend.model.GameDraw;
+import net.kato.lottospringboot.backend.dao.GameDrawEuroRepository;
+import net.kato.lottospringboot.backend.dao.GameDrawLottoRepository;
+import net.kato.lottospringboot.backend.model.GameDrawEuro;
+import net.kato.lottospringboot.backend.model.GameDrawLotto;
 import net.kato.lottospringboot.backend.service.DataImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +15,18 @@ import java.util.List;
 public class ApiController {
 
     private final DataImportService dataImportService;
-    private final GameDrawRepository gameDrawRepo;
+    private final GameDrawLottoRepository lottoRepo;
+    private final GameDrawEuroRepository euroRepo;
 
-    public ApiController(DataImportService dataImportService, GameDrawRepository gameDrawRepo) {
+    public ApiController(DataImportService dataImportService,
+                         GameDrawLottoRepository lottoRepo,
+                         GameDrawEuroRepository euroRepo) {
         this.dataImportService = dataImportService;
-        this.gameDrawRepo = gameDrawRepo;
+        this.lottoRepo = lottoRepo;
+        this.euroRepo = euroRepo;
     }
 
+    // 🔄 JSON Import
     @PostMapping("/import")
     public ResponseEntity<String> importData(@RequestParam String filePath) {
         try {
@@ -30,8 +37,25 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/draws/{gameName}")
-    public List<GameDraw> getDraws(@PathVariable String gameName) {
-        return gameDrawRepo.findByGameName(gameName);
+    // 🔵 Lotto
+    @GetMapping("/lotto")
+    public List<GameDrawLotto> getAllLotto() {
+        return lottoRepo.findAll();
+    }
+
+    @GetMapping("/lotto/latest")
+    public GameDrawLotto getLatestLotto() {
+        return lottoRepo.findTopByOrderByIdDesc();
+    }
+
+    // 🟡 Eurojackpot
+    @GetMapping("/eurojackpot")
+    public List<GameDrawEuro> getAllEuro() {
+        return euroRepo.findAll();
+    }
+
+    @GetMapping("/eurojackpot/latest")
+    public GameDrawEuro getLatestEuro() {
+        return euroRepo.findTopByOrderByIdDesc();
     }
 }
