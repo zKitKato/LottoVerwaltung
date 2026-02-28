@@ -13,31 +13,31 @@
     ]
   },
   "eurojackpot_gewinnzahlen": {
-    "Datum": "24.02.2026",
-    "Ziehung": "Dienstag",
+    "Datum": "27.02.2026",
+    "Ziehung": "Freitag",
     "Eurozahl": [
-      9,
-      2
+      2,
+      7
     ],
     "Zahl": [
-      48,
-      26,
-      38,
-      4,
-      5
+      47,
+      19,
+      28,
+      17,
+      7
     ]
   },
   "lotto_jackpot": {
-    "DatumNaechsteZiehung": "25.02.2026",
-    "ErwarteterJackpot1": "21000000.00",
-    "ErwarteterJackpot2": "1000000.00",
-    "NaechsteZiehung": "Mittwoch"
+    "DatumNaechsteZiehung": "28.02.2026",
+    "ErwarteterJackpot1": "24000000.00",
+    "ErwarteterJackpot2": "2000000.00",
+    "NaechsteZiehung": "Samstag"
   },
   "eurojackpot_jackpot": {
-    "DatumNaechsteZiehung": "27.02.2026",
-    "ErwarteterJackpot1": "73000000.00",
-    "ErwarteterJackpot2": "2000000.00",
-    "NaechsteZiehung": "Freitag"
+    "DatumNaechsteZiehung": "03.03.2026",
+    "ErwarteterJackpot1": "10000000.00",
+    "ErwarteterJackpot2": "0.00",
+    "NaechsteZiehung": "Dienstag"
   },
   "lotto_ziehung": {
     "AnnahmeschlussDatum": "28.02.2026",
@@ -46,9 +46,9 @@
     "Uhrzeit": "19:25:00"
   },
   "eurojackpot_ziehung": {
-    "AnnahmeschlussDatum": "27.02.2026",
+    "AnnahmeschlussDatum": "03.03.2026",
     "AnnahmeschlussUhrzeit": "19:00:00",
-    "Datum": "27.02.2026",
+    "Datum": "03.03.2026",
     "Uhrzeit": "20:00:00"
   }
 }

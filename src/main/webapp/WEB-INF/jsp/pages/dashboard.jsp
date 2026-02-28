@@ -13,3 +13,4 @@
 <!-- Cards at the top -->
 
 <jsp:include page="../fragments/dashboard/cards.jsp"/>
+

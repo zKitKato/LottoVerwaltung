@@ -1,5 +1,5 @@
 <!-- Heading -->
-<div class="sidebar-heading">Interface</div>
+<div class="sidebar-heading">Spiel Verwaltung</div>
 
 <!-- Nav Item - Components -->
 <li class="nav-item">
@@ -10,7 +10,7 @@
        aria-expanded="true"
        aria-controls="collapseComponents">
         <i class="fas fa-fw fa-cog"></i>
-        <span>Components</span>
+        <span>Spieler</span>
     </a>
     <div id="collapseComponents" class="collapse" aria-labelledby="headingComponents"
          data-parent="#accordionSidebar">

@@ -3,7 +3,7 @@
 
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center"
-       href="${pageContext.request.contextPath}/">
+       href="${pageContext.request.contextPath}/home">
         <div class="sidebar-brand-text mx-3">LottoVerwaltung</div>
     </a>
 
@@ -11,7 +11,7 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item active">
-        <a class="nav-link" href="${pageContext.request.contextPath}/">
+        <a class="nav-link" href="${pageContext.request.contextPath}/home">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </a>
@@ -36,6 +36,10 @@
 
     <%@include file="side-navbar-parts/documentation-section.jsp" %>
 
-    
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
 </ul>
 <!-- End of Sidebar -->

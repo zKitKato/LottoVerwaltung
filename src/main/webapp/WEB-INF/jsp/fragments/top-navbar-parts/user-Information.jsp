@@ -20,9 +20,44 @@
         <!--To logout screen-->
         <a class="dropdown-item"
            href="#"
-           data-toggle="modal"
-           data-target="#logoutModal">
+           data-bs-toggle="modal"
+           data-bs-target="#logoutModal">
             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i> Logout
         </a>
     </div>
 </li>
+
+<!-- Logout Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">Ready to Leave?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                Select "Logout" below if you are ready to end your current session.
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <!-- Spring Security Logout -->
+                <form action="${pageContext.request.contextPath}/logout" method="post">
+                    <input type="hidden"
+                           name="${_csrf.parameterName}"
+                           value="${_csrf.token}"/>
+
+                    <button type="submit" class="btn btn-primary">
+                        Logout
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

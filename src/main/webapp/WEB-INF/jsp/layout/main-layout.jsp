@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,11 +33,11 @@
 
             <!-- Page Content -->
             <div class="container-fluid">
-                <jsp:include page="/WEB-INF/jsp/pages/dashboard.jsp"/>
+                <jsp:include page="${contentPage}"/>
+
             </div>
 
         </div>
-
         <!-- Footer -->
         <%@ include file="../fragments/footer.jsp" %>
     </div>

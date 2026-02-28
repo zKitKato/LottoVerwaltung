@@ -26,15 +26,21 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)
                         .permitAll()
                 )
+
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutUrl("/logout")                 // explizit setzen (klarer)
+                        .logoutSuccessUrl("/login?logout")    // wohin nach Logout
+                        .invalidateHttpSession(true)          // Session zerstören
+                        .deleteCookies("JSESSIONID")          // Cookie löschen
                         .permitAll()
                 )
+
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/h2-console/**")
                 )
