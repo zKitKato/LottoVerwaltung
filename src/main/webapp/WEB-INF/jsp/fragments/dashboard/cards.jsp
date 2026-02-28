@@ -12,7 +12,9 @@
                             Eurojackpot
                         </div>
                         <div class=" mb-0 font-weight-bold text-gray-800">
-                            Naechste Ziehung: ${gameDrawEuro.nextDeadlineDate}
+                            Naechste Ziehung:
+                            <br> <br>
+                            ${gameDrawEuro.nextDeadlineDate} | ${gameDrawEuro.nextDeadlineTime}
                             <hr>
                             Jackpot: ${gameDrawEuro.jackpot} Euro
                         </div>
@@ -36,7 +38,8 @@
                             Lotto
                         </div>
                         <div class="mb-0 font-weight-bold text-gray-800">
-                            Naechste Ziehung: ${gameDrawLotto.nextDeadlineDate}
+                            Naechste Ziehung: <br> <br>
+                            ${gameDrawLotto.nextDeadlineDate} | ${gameDrawEuro.nextDeadlineTime}
                             <hr>
                             Jackpot: ${gameDrawLotto.jackpot} Euro
                         </div>
@@ -59,7 +62,7 @@
                             Eurojackpot
                         </div>
                         <div class=" mb-0 font-weight-bold text-gray-800">
-                            Aktuele Ziehung: ${gameDrawEuro.gameDate}
+                            Letzter Ziehung: ${gameDrawEuro.gameDate}
                             <hr>
                             Zahlen: ${gameDrawEuro.numbers}
                             <hr>
@@ -85,11 +88,11 @@
                             Lotto
                         </div>
                         <div class="mb-0 font-weight-bold text-gray-800">
-                            Aktuelle Ziehung: ${gameDrawLotto.gameDate}
-                            <hr>
-                            Superzahl: ${gameDrawLotto.extraNumbers}
+                            Letzter Ziehung: ${gameDrawLotto.gameDate}
                             <hr>
                             Zahlen: ${gameDrawLotto.numbers}
+                            <hr>
+                            Superzahl: ${gameDrawLotto.extraNumbers}
                         </div>
                     </div>
                     <div class="col-auto">

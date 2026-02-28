@@ -3,43 +3,33 @@
 
 <!-- Nav Item - Components -->
 <li class="nav-item">
-    <a class="nav-link collapsed"
-       href="#"
-       data-toggle="collapse"
-       data-target="#collapseComponents"
-       aria-expanded="true"
-       aria-controls="collapseComponents">
+    <a class="nav-link"
+       href="${pageContext.request.contextPath}/management/player-table">
         <i class="fas fa-fw fa-cog"></i>
         <span>Spieler</span>
     </a>
-    <div id="collapseComponents" class="collapse" aria-labelledby="headingComponents"
-         data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Custom Components:</h6>
-            <a class="collapse-item" href="#">Buttons</a>
-            <a class="collapse-item" href="#">Cards</a>
-        </div>
-    </div>
 </li>
-
-<!-- Nav Item - Utilities -->
+<!-- Nav Item - Utilities
 <li class="nav-item">
-    <a class="nav-link collapsed"
-       href="#"
-       data-toggle="collapse"
-       data-target="#collapseUtilities"
-       aria-expanded="true"
-       aria-controls="collapseUtilities">
-        <i class="fas fa-fw fa-wrench"></i>
-        <span>Utilities</span>
-    </a>
-    <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Custom Utilities:</h6>
-            <a class="collapse-item" href="#">Colors</a>
-            <a class="collapse-item" href="#">Borders</a>
-            <a class="collapse-item" href="#">Animations</a>
-            <a class="collapse-item" href="#">Other</a>
-        </div>
-    </div>
-</li>
+<a class="nav-link collapsed"
+href="#"
+data-bs-toggle="collapse"
+data-bs-target="#collapseUtilities"
+aria-expanded="true"
+aria-controls="collapseUtilities">
+<i class="fas fa-fw fa-wrench"></i>
+<span>Utilities</span>
+</a>
+<div id="collapseUtilities"
+class="collapse"
+aria-labelledby="headingUtilities"
+data-bs-parent="#accordionSidebar">
+<div class="bg-white py-2 collapse-inner rounded">
+<h6 class="collapse-header">Custom Utilities:</h6>
+<a class="collapse-item" href="#">Colors</a>
+<a class="collapse-item" href="#">Borders</a>
+<a class="collapse-item" href="#">Animations</a>
+<a class="collapse-item" href="#">Other</a>
+</div>
+</div>
+</li> -->

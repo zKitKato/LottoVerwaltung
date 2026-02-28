@@ -2,24 +2,35 @@ package net.kato.lottospringboot.frontend.controller;
 
 import net.kato.lottospringboot.backend.dao.GameDrawEuroRepository;
 import net.kato.lottospringboot.backend.dao.GameDrawLottoRepository;
+import net.kato.lottospringboot.backend.dao.PlayerRepository;
 import net.kato.lottospringboot.backend.model.GameDrawEuro;
 import net.kato.lottospringboot.backend.model.GameDrawLotto;
+import net.kato.lottospringboot.backend.model.Player;
+import net.kato.lottospringboot.backend.specification.PlayerSpecification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 public class ViewController {
 
     private final GameDrawEuroRepository gameDrawEuroRepository;
     private final GameDrawLottoRepository gameDrawLottoRepository;
+    private final PlayerRepository playerRepository;
 
-    public ViewController(GameDrawEuroRepository gameDrawEuroRepository, GameDrawLottoRepository gameDrawLottoRepository) {
+    public ViewController(GameDrawEuroRepository gameDrawEuroRepository,
+                          GameDrawLottoRepository gameDrawLottoRepository,
+                          PlayerRepository playerRepository) {
         this.gameDrawEuroRepository = gameDrawEuroRepository;
         this.gameDrawLottoRepository = gameDrawLottoRepository;
+        this.playerRepository = playerRepository;
     }
 
     // Login
@@ -39,32 +50,60 @@ public class ViewController {
         GameDrawEuro euroDaten = gameDrawEuroRepository.findTopByOrderByIdDesc();
         GameDrawLotto lottoDaten = gameDrawLottoRepository.findTopByOrderByIdDesc();
 
-        if (euroDaten != null && lottoDaten != null) {
-            model.addAttribute("gameDrawEuro", euroDaten);
-            model.addAttribute("gameDrawLotto", lottoDaten);
+        if (euroDaten != null) model.addAttribute("gameDrawEuro", euroDaten);
+        if (lottoDaten != null) model.addAttribute("gameDrawLotto", lottoDaten);
+
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/dashboard.jsp");
+        return "layout/main-layout";
+    }
+
+    // Addon-Seiten
+    @GetMapping("/addons/{page}")
+    public String loadAddon(@PathVariable String page, Model model) {
+        if ("euro-table".equals(page)) model.addAttribute("gameEuro", gameDrawEuroRepository.findAll());
+        else if ("lotto-table".equals(page)) model.addAttribute("gameLotto", gameDrawLottoRepository.findAll());
+
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/addons/" + page + ".jsp");
+        return "layout/main-layout";
+    }
+
+    @GetMapping("/management/player-table")
+    public String loadPlayers(
+            @RequestParam(required = false) String keyword,
+            Model model
+    ) {
+        List<Player> players;
+        if (keyword != null && !keyword.isBlank()) {
+            players = playerRepository.findByUsernameContainingIgnoreCase(keyword);
+        } else {
+            players = playerRepository.findAll();
         }
 
-        // Dashboard JSP
-        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/dashboard.jsp");
+        model.addAttribute("players", players); // Liste von allen Spielern
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/management/player-table.jsp");
 
         return "layout/main-layout";
     }
 
-    // Dynamische Addon-Seiten, z. B. /addons/euro-table oder /addons/lotto-table
-    @GetMapping("/addons/{page}")
-    public String loadAddon(@PathVariable("page") String page, Model model) {
+    // Spieler hinzufügen
+    @PostMapping("/management/player/add")
+    public String addPlayer(
+            @RequestParam String username,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate spieltMitSeit,
+            @RequestParam String spiele,
+            @RequestParam BigDecimal kontostand,
+            @RequestParam String status
+    ) {
+        Player player = new Player();
+        player.setUsername(username);
+        player.setSpieltMitSeit(spieltMitSeit);
+        player.setSpiele(spiele);
+        player.setKontostand(kontostand);
+        player.setStatus(status);
 
-        // Datenbankabfragen für spezifische Seiten
-        if ("euro-table".equals(page)) {
-            model.addAttribute("gameEuro", gameDrawEuroRepository.findAll());
-        } else if ("lotto-table".equals(page)) {
-            model.addAttribute("gameLotto", gameDrawLottoRepository.findAll());
-        }
-
-        // Dynamisches JSP-Fragment laden
-        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/addons/" + page + ".jsp");
-
-        return "layout/main-layout";
+        playerRepository.save(player);
+        return "redirect:/management/player-table";
     }
 
     // Externe Dokumentation

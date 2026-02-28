@@ -1,0 +1,71 @@
+UI:
+    Spieldaten:
+        Spieler:
+            Spieler Tabelle:
+                Auflistung der Spieler
+
+Backend:
+    backend.model:
+        Player
+            id,
+            username,
+            spieltmitseit, (optional)
+            spiele,
+            kontostand, (kann negativ sein)
+            status, (aktiv, pausiert, verlassen)
+            tippscheine#, (lotto, eurojackpot => mit zahlen)
+
+        Tippschein
+            id,
+            spielNamen, ( Euro oder Lotto)
+            spieler, (dem der schein gehört)
+            tippZahlen,
+            tippExtraZahlen,
+
+
+
+
+
+        Klassen beispiel:
+            @Entity
+            @Table(name ="player")
+            public class Player {
+                @Id
+                @GeneratedValue(strategy = GenerationType.IDENTITY)
+                private long id;
+
+                @Column(name = "playername")
+                private String playerName;
+
+                @Column(name = )
+                private String placeholder;
+            }
+    dao:
+        PlayerRepository
+
+    DTO:
+        Player
+
+Frontend.dto
+    ViewController:
+        @PostRequest
+            : add player -> List<Player>
+
+
+
+
+WEB-Inf:
+    jsp:
+        fragments:
+            login:
+                registry
+                forgot password
+
+
+
+
+
+WEITERE Ideen:
+
+suche bei tabellen:
+
