@@ -3,7 +3,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <h1 class="h3 mb-4 text-gray-800">Spieler Übersicht</h1>
 
-gi
+
 <div class="d-flex justify-content-between mb-3">
     <div>
         <!-- Searchbar -->
@@ -36,33 +36,31 @@ gi
 </div>
 
 
-<!-- TABLE -->
+<!-- ========================= -->
+<!-- PLAYER TABLE START -->
+<!-- ========================= -->
 <div class="card shadow mb-4">
     <div class="card-body">
         <div class="table-responsive">
 
             <table class="table table-bordered">
+                <!-- TABLE HEADER -->
                 <thead class="thead-dark">
                 <tr>
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=id&sortDir=${reverseSortDir}&keyword=${keyword}">
                             ID
+                            <c:if test="${sortField eq 'id'}">
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
+                            </c:if>
                         </a>
                     </th>
 
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=username&sortDir=${reverseSortDir}&keyword=${keyword}">
                             Username
-
                             <c:if test="${sortField eq 'username'}">
-                                <c:choose>
-                                    <c:when test="${sortDir eq 'asc'}">
-                                        <i class="bi bi-caret-up-fill"></i>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <i class="bi bi-caret-down-fill"></i>
-                                    </c:otherwise>
-                                </c:choose>
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
                             </c:if>
                         </a>
                     </th>
@@ -70,27 +68,44 @@ gi
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=spieltMitSeit&sortDir=${reverseSortDir}&keyword=${keyword}">
                             Spielt seit
+                            <c:if test="${sortField eq 'spieltMitSeit'}">
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
+                            </c:if>
                         </a>
                     </th>
+
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=spiele&sortDir=${reverseSortDir}&keyword=${keyword}">
                             Spiele
+                            <c:if test="${sortField eq 'spiele'}">
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
+                            </c:if>
                         </a>
                     </th>
+
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=kontostand&sortDir=${reverseSortDir}&keyword=${keyword}">
                             Kontostand
+                            <c:if test="${sortField eq 'kontostand'}">
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
+                            </c:if>
                         </a>
                     </th>
 
                     <th>
                         <a href="${pageContext.request.contextPath}/management/player-table?sortField=status&sortDir=${reverseSortDir}&keyword=${keyword}">
                             Status
+                            <c:if test="${sortField eq 'status'}">
+                                <i class="bi ${sortDir eq 'asc' ? 'bi-arrow-up-short' : 'bi-arrow-down-short'}"></i>
+                            </c:if>
                         </a>
                     </th>
+
+                    <th class="text-center">Aktionen</th>
                 </tr>
                 </thead>
 
+                <!-- TABLE BODY -->
                 <tbody>
                 <c:forEach var="player" items="${players}">
                     <tr>
@@ -107,12 +122,39 @@ gi
                         <td>${player.spiele}</td>
                         <td>${player.kontostand} €</td>
                         <td>${player.status}</td>
+                        <td class="text-center">
+                            <!-- EDIT BUTTON -->
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary edit-player-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editPlayerModal"
+                                    data-id="${player.id}"
+                                    data-username="${player.username}"
+                                    data-spieltmitseit="${player.spieltMitSeit}"
+                                    data-spiele="${player.spiele}"
+                                    data-kontostand="${player.kontostand}"
+                                    data-status="${player.status}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+
+                            <!-- DELETE BUTTON -->
+                            <form method="post"
+                                  action="${pageContext.request.contextPath}/management/player/delete/${player.id}"
+                                  style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen"
+                                        onclick="return confirm('Spieler wirklich löschen?');">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 </c:forEach>
 
+                <!-- FALLS KEINE SPIELER -->
                 <c:if test="${empty players}">
                     <tr>
-                        <td colspan="6" class="text-center">Keine Spieler gefunden</td>
+                        <td colspan="7" class="text-center text-muted">Keine Spieler gefunden</td>
                     </tr>
                 </c:if>
                 </tbody>
@@ -121,6 +163,11 @@ gi
         </div>
     </div>
 </div>
+
+<!-- ========================= -->
+<!-- PLAYER TABLE END -->
+<!-- ========================= -->
+
 
 <!-- ADD PLAYER MODAL -->
 <div class="modal fade" id="addPlayerModal" tabindex="-1">
@@ -138,7 +185,6 @@ gi
                     <button type="button"
                             class="btn-close"
                             data-bs-dismiss="modal">
-                        &times;
                     </button>
                 </div>
 
@@ -219,10 +265,94 @@ gi
 </div>
 
 
+<!-- EDIT PLAYER MODAL -->
+<div class="modal fade" id="editPlayerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" id="editPlayerForm">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Spieler bearbeiten</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="username" class="form-control" id="editUsername" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Spielt mit seit</label>
+                        <input type="date" name="spieltMitSeit" class="form-control" id="editSpieltMitSeit">
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+                                onclick="setEditToday()">Heute verwenden
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Spiele</label>
+                        <select name="spiele" class="form-control" id="editSpiele">
+                            <option value="Lotto">Nur Lotto</option>
+                            <option value="Eurojackpot">Nur Eurojackpot</option>
+                            <option value="Lotto,Eurojackpot">Beide</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kontostand (€)</label>
+                        <input type="number" step="0.01" name="kontostand" class="form-control" id="editKontostand"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-control" id="editStatus">
+                            <option value="aktiv">Aktiv</option>
+                            <option value="pausiert">Pausiert</option>
+                            <option value="verlassen">Verlassen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Speichern</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-    function setToday() {
+    const contextPath = '${pageContext.request.contextPath}';
+    const editForm = document.getElementById('editPlayerForm');
+    const editModal = document.getElementById('editPlayerModal');
+
+    editModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const username = button.getAttribute('data-username');
+        const spieltMitSeit = button.getAttribute('data-spieltmitseit');
+        const spiele = button.getAttribute('data-spiele');
+        const kontostand = button.getAttribute('data-kontostand');
+        const status = button.getAttribute('data-status');
+
+        // Dynamische POST-URL für den Spieler
+        editForm.action = contextPath + '/management/player/edit/' + id;
+
+        // Werte in die Input-Felder setzen
+        document.getElementById('editUsername').value = username;
+        document.getElementById('editSpieltMitSeit').value = spieltMitSeit;
+        document.getElementById('editSpiele').value = spiele;
+        document.getElementById('editKontostand').value = kontostand;
+        document.getElementById('editStatus').value = status;
+    });
+
+    function setEditToday() {
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('spieltMitSeit').value = today;
+        document.getElementById('editSpieltMitSeit').value = today;
     }
 </script>
 

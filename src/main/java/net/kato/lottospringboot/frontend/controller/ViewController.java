@@ -132,6 +132,36 @@ public class ViewController {
         return "redirect:/management/player-table";
     }
 
+    // Spieler bearbeiten speichern
+    @PostMapping("/management/player/edit/{id}")
+    public String updatePlayer(
+            @PathVariable Long id,
+            @RequestParam String username,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate spieltMitSeit,
+            @RequestParam String spiele,
+            @RequestParam BigDecimal kontostand,
+            @RequestParam String status
+    ) {
+        Player player = playerRepository.findById(id).orElseThrow();
+
+        player.setUsername(username);
+        player.setSpieltMitSeit(spieltMitSeit);
+        player.setSpiele(spiele);
+        player.setKontostand(kontostand);
+        player.setStatus(status);
+
+        playerRepository.save(player);
+        return "redirect:/management/player-table";
+    }
+
+
+    @GetMapping("/error")
+    public String error(Model model) {
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/error.jsp");
+
+        return "layout/main-layout";
+    }
+
     // Externe Dokumentation
     @GetMapping("/documentation")
     public String docs() {
