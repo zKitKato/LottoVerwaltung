@@ -3,7 +3,7 @@ UI:
         Spieler:
             Spieler Tabelle:
                 Auflistung der Spieler
-
+ 
 Backend:
     backend.model:
         Player
