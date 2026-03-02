@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <h1 class="h3 mb-4 text-gray-800">Spieler Übersicht</h1>
 
-
+gi
 <div class="d-flex justify-content-between mb-3">
     <div>
         <!-- Searchbar -->
@@ -44,12 +44,50 @@
             <table class="table table-bordered">
                 <thead class="thead-dark">
                 <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Spielt seit</th>
-                    <th>Spiele</th>
-                    <th>Kontostand</th>
-                    <th>Status</th>
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=id&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            ID
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=username&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            Username
+
+                            <c:if test="${sortField eq 'username'}">
+                                <c:choose>
+                                    <c:when test="${sortDir eq 'asc'}">
+                                        <i class="bi bi-caret-up-fill"></i>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <i class="bi bi-caret-down-fill"></i>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:if>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=spieltMitSeit&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            Spielt seit
+                        </a>
+                    </th>
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=spiele&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            Spiele
+                        </a>
+                    </th>
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=kontostand&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            Kontostand
+                        </a>
+                    </th>
+
+                    <th>
+                        <a href="${pageContext.request.contextPath}/management/player-table?sortField=status&sortDir=${reverseSortDir}&keyword=${keyword}">
+                            Status
+                        </a>
+                    </th>
                 </tr>
                 </thead>
 
