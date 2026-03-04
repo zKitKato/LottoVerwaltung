@@ -110,7 +110,11 @@
                 <c:forEach var="player" items="${players}">
                     <tr>
                         <td>${player.id}</td>
-                        <td>${player.username}</td>
+                        <td>
+                            <a href="${pageContext.request.contextPath}/management/player/${player.id}">
+                                    ${player.username}
+                            </a>
+                        </td>
                         <td>
                             <c:choose>
                                 <c:when test="${not empty player.spieltMitSeit}">
@@ -142,8 +146,11 @@
                                   action="${pageContext.request.contextPath}/management/player/delete/${player.id}"
                                   style="display:inline;">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Löschen"
-                                        onclick="return confirm('Spieler wirklich löschen?');">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        onclick="setDeleteId('${player.id}', '${player.username}')">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                             </form>
@@ -353,6 +360,67 @@
     function setEditToday() {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('editSpieltMitSeit').value = today;
+    }
+</script>
+
+
+<!-- Einheitliches Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+
+            <form method="post" id="deleteForm">
+                <input type="hidden"
+                       name="${_csrf.parameterName}"
+                       value="${_csrf.token}"/>
+
+                <!-- Header im gleichen Stil wie deine Karten -->
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">
+                        Spieler löschen
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body pt-2">
+                    <p class="text-muted mb-0">
+                        Möchtest du den Spieler
+                        <strong id="deletePlayerName"></strong>
+                        wirklich löschen?
+                    </p>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Abbrechen
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Löschen
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function setDeleteId(id, username) {
+
+        // Action URL dynamisch setzen
+        document.getElementById("deleteForm").action =
+            "${pageContext.request.contextPath}/management/player/delete/" + id;
+
+        // Name im Modal anzeigen
+        document.getElementById("deletePlayerName").innerText = username;
     }
 </script>
 

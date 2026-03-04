@@ -1,11 +1,7 @@
 package net.kato.lottospringboot.frontend.controller;
 
-import net.kato.lottospringboot.backend.dao.GameDrawEuroRepository;
-import net.kato.lottospringboot.backend.dao.GameDrawLottoRepository;
-import net.kato.lottospringboot.backend.dao.PlayerRepository;
-import net.kato.lottospringboot.backend.model.GameDrawEuro;
-import net.kato.lottospringboot.backend.model.GameDrawLotto;
-import net.kato.lottospringboot.backend.model.Player;
+import net.kato.lottospringboot.backend.dao.*;
+import net.kato.lottospringboot.backend.model.*;
 import net.kato.lottospringboot.backend.specification.PlayerSpecification;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -25,13 +23,20 @@ public class ViewController {
     private final GameDrawEuroRepository gameDrawEuroRepository;
     private final GameDrawLottoRepository gameDrawLottoRepository;
     private final PlayerRepository playerRepository;
+    private final TicketRepository ticketRepository;
+    private final FieldRepository fieldRepository;
 
     public ViewController(GameDrawEuroRepository gameDrawEuroRepository,
                           GameDrawLottoRepository gameDrawLottoRepository,
-                          PlayerRepository playerRepository) {
+                          PlayerRepository playerRepository,
+                          TicketRepository ticketRepository,
+                          FieldRepository fieldRepository
+    ) {
         this.gameDrawEuroRepository = gameDrawEuroRepository;
         this.gameDrawLottoRepository = gameDrawLottoRepository;
         this.playerRepository = playerRepository;
+        this.ticketRepository = ticketRepository;
+        this.fieldRepository = fieldRepository;
     }
 
     // Login
@@ -47,6 +52,8 @@ public class ViewController {
         if (userDetails != null) {
             model.addAttribute("username", userDetails.getUsername());
         }
+
+        model.addAttribute("allPlayers", playerRepository.findAll());
 
         GameDrawEuro euroDaten = gameDrawEuroRepository.findTopByOrderByIdDesc();
         GameDrawLotto lottoDaten = gameDrawLottoRepository.findTopByOrderByIdDesc();
@@ -99,12 +106,18 @@ public class ViewController {
             players = playerRepository.findAll(sort);
         }
 
+        // Neu: alle Spieler für die Navbar-Suche
+        List<Player> allPlayers = playerRepository.findAll();
+
+
         model.addAttribute("players", players);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir",
                 sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("allPlayers", allPlayers);
+
 
         model.addAttribute("contentPage",
                 "/WEB-INF/jsp/pages/management/player-table.jsp");
@@ -152,6 +165,196 @@ public class ViewController {
 
         playerRepository.save(player);
         return "redirect:/management/player-table";
+    }
+
+    // Spieler löschen
+    @PostMapping("/management/player/delete/{id}")
+    public String deletePlayer(@PathVariable Long id) {
+
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige ID: " + id));
+
+        playerRepository.delete(player);
+
+        return "redirect:/management/player-table";
+    }
+
+    @GetMapping("/management/player/{id}")
+    public String viewPlayerProfile(@PathVariable Long id, Model model) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige ID: " + id));
+
+        List<Ticket> tickets = ticketRepository.findByPlayer(player);
+
+        model.addAttribute("player", player);
+        model.addAttribute("tickets", tickets);
+
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/management/player-profile.jsp");
+
+        return "layout/main-layout";
+    }
+
+    // =========================
+    // Ticket-Tabelle anzeigen
+    // =========================
+    @GetMapping("/management/ticket-table")
+    public String loadTickets(
+            @RequestParam(required = false) String keyword,
+            Model model
+    ) {
+
+        List<Ticket> tickets;
+
+        if (keyword != null && !keyword.isBlank()) {
+            tickets = ticketRepository.findAll((root, query, cb) -> {
+                var playerJoin = root.join("player");
+                var predicateUsername = cb.like(cb.lower(playerJoin.get("username")), "%" + keyword.toLowerCase() + "%");
+                return predicateUsername;
+            });
+        } else {
+            tickets = ticketRepository.findAll();
+        }
+
+        List<Player> allPlayers = playerRepository.findAll(Sort.by("username"));
+
+        model.addAttribute("tickets", tickets);
+        model.addAttribute("allPlayers", allPlayers);
+        model.addAttribute("keyword", keyword);
+
+        // Letzte Ziehungszahlen für Extra-Zahlen
+        GameDrawLotto latestLotto = gameDrawLottoRepository.findTopByOrderByIdDesc();
+        GameDrawEuro latestEuro = gameDrawEuroRepository.findTopByOrderByIdDesc();
+
+        model.addAttribute("latestLottoExtra", latestLotto != null ? latestLotto.getExtraNumbers() : "0");
+        model.addAttribute("latestEuroExtra", latestEuro != null ? latestEuro.getExtraNumbers() : "0");
+
+        model.addAttribute("contentPage", "/WEB-INF/jsp/pages/management/ticket-table.jsp");
+        return "layout/main-layout";
+    }
+
+    // =========================
+    // Ticket hinzufügen
+    // =========================
+    @PostMapping("/management/ticket/add")
+    public String addTicket(
+            @RequestParam Long playerId,
+            @RequestParam String gameType,
+            @RequestParam String fieldsInput, // z.B. "1,2,3,4,5,6;7,8,9,10,11,12"
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate playDate
+    ) {
+        // Spieler laden
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Spieler-ID: " + playerId));
+
+        // Neues Ticket erstellen
+        Ticket ticket = new Ticket();
+        ticket.setPlayer(player);
+        ticket.setGameType(gameType);
+        ticket.setDrawDate(playDate);
+
+        // Felder erstellen
+        List<Field> fields = new ArrayList<>();
+        String[] fieldArr = fieldsInput.split(";");
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        BigDecimal pricePerField = gameType.equalsIgnoreCase("Lotto") ? BigDecimal.valueOf(1.2) : BigDecimal.valueOf(2.0);
+
+        for (String f : fieldArr) {
+            String[] parts = f.split(",");
+            String extraNumber = "0";
+            String numbers = f;
+
+            if (parts.length > 6) {
+                extraNumber = parts[parts.length - 1];
+                String[] numberParts = Arrays.copyOfRange(parts, 0, parts.length - 1);
+                numbers = String.join(",", numberParts);
+            }
+
+            Field field = new Field();
+            field.setNumbers(numbers);
+            field.setExtraNumber(extraNumber);
+            field.setTicket(ticket); // WICHTIG für Cascade.ALL
+            fields.add(field);
+
+            totalPrice = totalPrice.add(pricePerField);
+        }
+
+        ticket.setFields(fields);
+        ticket.setTotalPrice(totalPrice);
+
+        // Ticket + Fields speichern
+        ticketRepository.save(ticket);
+
+        return "redirect:/management/ticket-table";
+    }
+
+    // =========================
+    // Ticket bearbeiten
+    // =========================
+    @PostMapping("/management/ticket/edit/{id}")
+    public String editTicket(
+            @PathVariable Long id,
+            @RequestParam Long playerId,
+            @RequestParam String gameType,
+            @RequestParam String fieldsInput,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate playDate
+    ) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Ticket-ID: " + id));
+
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Spieler-ID: " + playerId));
+
+        ticket.setPlayer(player);
+        ticket.setGameType(gameType);
+        ticket.setDrawDate(playDate);
+
+        // Alte Felder löschen
+        fieldRepository.deleteAll(ticket.getFields());
+
+        // Neue Felder erstellen
+        List<Field> fields = new ArrayList<>();
+        String[] fieldArr = fieldsInput.split(";");
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        BigDecimal pricePerField = gameType.equalsIgnoreCase("Lotto") ? BigDecimal.valueOf(1.2) : BigDecimal.valueOf(2.0);
+
+        for (String f : fieldArr) {
+            String[] parts = f.split(",");
+            String extraNumber = "0";
+            String numbers = f;
+
+            if (parts.length > 6) {
+                extraNumber = parts[parts.length - 1];
+                String[] numberParts = Arrays.copyOfRange(parts, 0, parts.length - 1);
+                numbers = String.join(",", numberParts);
+            }
+
+            Field field = new Field();
+            field.setNumbers(numbers);
+            field.setExtraNumber(extraNumber);
+            field.setTicket(ticket);
+            fields.add(field);
+
+            totalPrice = totalPrice.add(pricePerField);
+        }
+
+        ticket.setFields(fields);
+        ticket.setTotalPrice(totalPrice);
+
+        ticketRepository.save(ticket);
+        return "redirect:/management/ticket-table";
+    }
+
+    // =========================
+    // Ticket löschen
+    // =========================
+    @PostMapping("/management/ticket/delete/{id}")
+    public String deleteTicket(@PathVariable Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Ticket-ID: " + id));
+        ticketRepository.delete(ticket);
+        return "redirect:/management/ticket-table";
     }
 
 

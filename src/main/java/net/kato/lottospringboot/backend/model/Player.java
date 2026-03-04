@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "players",
@@ -29,6 +30,9 @@ public class Player {
     @Column(nullable = false)
     private String status; // z.B. "aktiv", "pausiert", "verlassen"
 
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Ticket> tickets;
+    
     // Getter / Setter
 
     public Long getId() {

@@ -28,72 +28,66 @@ public class DataImportService {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(new File(filePath));
 
-        /* ==========================
-           🔵 LOTTO
-        ========================== */
+    /* ==========================
+       🔵 LOTTO
+    ========================== */
 
         JsonNode lottoGewinn = root.get("lotto_gewinnzahlen");
         JsonNode lottoJackpot = root.get("lotto_jackpot");
         JsonNode lottoZiehung = root.get("lotto_ziehung");
 
-        String lottoDate = lottoGewinn.get("Datum").asText();
+        if (lottoGewinn != null && lottoJackpot != null && lottoZiehung != null) {
 
-        if (lottoRepo.findByGameDate(lottoDate).isEmpty()) {
+            String lottoDate = lottoGewinn.get("Datum").asText();
 
-            GameDrawLotto lotto = new GameDrawLotto();
+            if (lottoRepo.findByGameDate(lottoDate).isEmpty()) {
 
-            lotto.setGameDate(lottoDate);
-            lotto.setDrawDay(lottoGewinn.get("Ziehung").asText());
-            lotto.setNumbers(lottoGewinn.get("Zahl").toString());
-            lotto.setExtraNumbers("[" + lottoGewinn.get("Superzahl").asText() + "]");
+                GameDrawLotto lotto = new GameDrawLotto();
 
-            lotto.setJackpot(new BigDecimal(
-                    lottoJackpot.get("ErwarteterJackpot1").asText()
-            ));
+                lotto.setGameDate(lottoDate);
+                lotto.setDrawDay(lottoGewinn.get("Ziehung").asText());
+                lotto.setNumbers(lottoGewinn.get("Zahl").toString());
+                lotto.setExtraNumbers("[" + lottoGewinn.get("Superzahl").asText() + "]");
+                lotto.setJackpot(new BigDecimal(lottoJackpot.get("ErwarteterJackpot1").asText()));
+                lotto.setNextDeadlineDate(lottoZiehung.get("AnnahmeschlussDatum").asText());
+                lotto.setNextDeadlineTime(lottoZiehung.get("AnnahmeschlussUhrzeit").asText());
 
-            lotto.setNextDeadlineDate(
-                    lottoZiehung.get("AnnahmeschlussDatum").asText()
-            );
+                lottoRepo.save(lotto);
+            }
 
-            lotto.setNextDeadlineTime(
-                    lottoZiehung.get("AnnahmeschlussUhrzeit").asText()
-            );
-
-            lottoRepo.save(lotto);
+        } else {
+            System.out.println("⚠ Lotto-Daten nicht gefunden im JSON: " + filePath);
         }
 
-        /* ==========================
-           🟡 EUROJACKPOT
-        ========================== */
+    /* ==========================
+       🟡 EUROJACKPOT
+    ========================== */
 
         JsonNode euroGewinn = root.get("eurojackpot_gewinnzahlen");
         JsonNode euroJackpot = root.get("eurojackpot_jackpot");
         JsonNode euroZiehung = root.get("eurojackpot_ziehung");
 
-        String euroDate = euroGewinn.get("Datum").asText();
+        if (euroGewinn != null && euroJackpot != null && euroZiehung != null) {
 
-        if (euroRepo.findByGameDate(euroDate).isEmpty()) {
+            String euroDate = euroGewinn.get("Datum").asText();
 
-            GameDrawEuro euro = new GameDrawEuro();
+            if (euroRepo.findByGameDate(euroDate).isEmpty()) {
 
-            euro.setGameDate(euroDate);
-            euro.setDrawDay(euroGewinn.get("Ziehung").asText());
-            euro.setNumbers(euroGewinn.get("Zahl").toString());
-            euro.setExtraNumbers(euroGewinn.get("Eurozahl").toString());
+                GameDrawEuro euro = new GameDrawEuro();
 
-            euro.setJackpot(new BigDecimal(
-                    euroJackpot.get("ErwarteterJackpot1").asText()
-            ));
+                euro.setGameDate(euroDate);
+                euro.setDrawDay(euroGewinn.get("Ziehung").asText());
+                euro.setNumbers(euroGewinn.get("Zahl").toString());
+                euro.setExtraNumbers(euroGewinn.get("Eurozahl").toString());
+                euro.setJackpot(new BigDecimal(euroJackpot.get("ErwarteterJackpot1").asText()));
+                euro.setNextDeadlineDate(euroZiehung.get("AnnahmeschlussDatum").asText());
+                euro.setNextDeadlineTime(euroZiehung.get("AnnahmeschlussUhrzeit").asText());
 
-            euro.setNextDeadlineDate(
-                    euroZiehung.get("AnnahmeschlussDatum").asText()
-            );
+                euroRepo.save(euro);
+            }
 
-            euro.setNextDeadlineTime(
-                    euroZiehung.get("AnnahmeschlussUhrzeit").asText()
-            );
-
-            euroRepo.save(euro);
+        } else {
+            System.out.println("⚠ Eurojackpot-Daten nicht gefunden im JSON: " + filePath);
         }
 
         System.out.println("✔ Lotto & Eurojackpot erfolgreich importiert.");

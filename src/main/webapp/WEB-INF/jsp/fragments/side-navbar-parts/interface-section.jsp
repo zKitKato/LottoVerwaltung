@@ -8,6 +8,10 @@
         <i class="fas fa-fw fa-cog"></i>
         <span>Spieler</span>
     </a>
+    <a class="nav-link" href="${pageContext.request.contextPath}/management/ticket-table">
+        <i class="fas fa-fw fa-table"></i>
+        <span>Tickets</span>
+    </a>
 </li>
 <!-- Nav Item - Utilities
 <li class="nav-item">

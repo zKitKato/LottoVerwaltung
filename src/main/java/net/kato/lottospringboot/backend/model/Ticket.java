@@ -2,7 +2,10 @@ package net.kato.lottospringboot.backend.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "tickets")
@@ -12,24 +15,30 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Beziehung zum Spieler
+    // Spieler
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
     @Column(name = "game_type", nullable = false)
-    private String gameType; // z.B. "Lotto" oder "Eurojackpot"
+    private String gameType; // "Lotto" oder "Eurojackpot"
 
-    @Column(name = "numbers", columnDefinition = "TEXT", nullable = false)
-    private String numbers; // z.B. "3,7,12,15,22,34"
-
-    @Column(name = "extra_numbers", columnDefinition = "TEXT")
-    private String extraNumbers; // optional
+    @Column(name = "draw_date", nullable = false)
+    private LocalDate drawDate; // Spieldatum
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "total_price", nullable = false)
+    private BigDecimal totalPrice = BigDecimal.ZERO;
+
+    // 🔹 Beziehung zu den Feldern
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Field> fields;
+
+    // =====================
     // Getter / Setter
+    // =====================
     public Long getId() {
         return id;
     }
@@ -54,20 +63,12 @@ public class Ticket {
         this.gameType = gameType;
     }
 
-    public String getNumbers() {
-        return numbers;
+    public LocalDate getDrawDate() {
+        return drawDate;
     }
 
-    public void setNumbers(String numbers) {
-        this.numbers = numbers;
-    }
-
-    public String getExtraNumbers() {
-        return extraNumbers;
-    }
-
-    public void setExtraNumbers(String extraNumbers) {
-        this.extraNumbers = extraNumbers;
+    public void setDrawDate(LocalDate drawDate) {
+        this.drawDate = drawDate;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -76,5 +77,21 @@ public class Ticket {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public List<Field> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<Field> fields) {
+        this.fields = fields;
     }
 }
