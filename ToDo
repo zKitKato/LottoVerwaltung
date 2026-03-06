@@ -5,8 +5,8 @@ UI:
                 Auflistung der Spieler
  
 Backend:
-    backend.model:
-        Player
+    backend.model{
+        Player:
             id,
             username,
             spieltmitseit, (optional)
@@ -21,7 +21,7 @@ Backend:
             spieler, (dem der schein gehört)
             tippZahlen,
             tippExtraZahlen,
-
+    }
 
 
 
@@ -69,3 +69,43 @@ WEITERE Ideen:
 
 suche bei tabellen:
 
+
+
+
+04.03.2026
+
+tipp scheine mit guten feldern ausstatten.
+zahlen eigabe aufdröseln ziwschen spiel zahlen und superzahlen oder ...
+erweiterung zu Zusatzspielen mit Super6...
+https://www.lotto-hessen.de/lotto6aus49/gewinnzahlen-quoten/gewinnzahlen
+HTMl css anschauen ggf kopieren
+
+berechnung anpassen +0,2 Euro bearbeitungs gebühr
+
+Tippscheine anpassen über gesamtlaufzeit
++ wann gezogen wird, nur mittowch, samsatg
+mittwoch und samstag
+
+Euroanpassen, preise rausfinden
+
+Tippschein felder müssen einzeln gespeichert werden
+ vielleicht
+
+
+ Alerts:
+ - wenn spieler im Minus ist soll ein alert gesendet werden
+
+ Graph, gewinn verlust rechnung
+ (Rechnung des Preises des Scheins(pro Ziehung?))
+ (gesammt summe aus...
+ ... einem Monat
+ ... einem Quartal
+ ... einem Jahr
+ ... gesammt
+
+
+
+
+
+
+ Optional: Spielerprofil

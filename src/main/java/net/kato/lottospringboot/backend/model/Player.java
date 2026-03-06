@@ -31,8 +31,8 @@ public class Player {
     private String status; // z.B. "aktiv", "pausiert", "verlassen"
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Ticket> tickets;
-    
+    private List<TicketOverview> tickets;
+
     // Getter / Setter
 
     public Long getId() {

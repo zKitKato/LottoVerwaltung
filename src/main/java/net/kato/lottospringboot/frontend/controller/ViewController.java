@@ -2,7 +2,10 @@ package net.kato.lottospringboot.frontend.controller;
 
 import net.kato.lottospringboot.backend.dao.*;
 import net.kato.lottospringboot.backend.model.*;
+import net.kato.lottospringboot.backend.service.TicketPriceService;
 import net.kato.lottospringboot.backend.specification.PlayerSpecification;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class ViewController {
@@ -23,20 +24,31 @@ public class ViewController {
     private final GameDrawEuroRepository gameDrawEuroRepository;
     private final GameDrawLottoRepository gameDrawLottoRepository;
     private final PlayerRepository playerRepository;
-    private final TicketRepository ticketRepository;
-    private final FieldRepository fieldRepository;
+    private final EuroFieldRepository euroFieldRepository;
+    private final LottoFieldRepository lottoFieldRepository;
+    private final EuroTicketRepository euroTicketRepository;
+    private final LottoTicketRepository lottoTicketRepository;
+    private final TicketPriceService ticketPriceService;
+    private final TicketOverviewRepository ticketOverviewRepository;
 
     public ViewController(GameDrawEuroRepository gameDrawEuroRepository,
                           GameDrawLottoRepository gameDrawLottoRepository,
                           PlayerRepository playerRepository,
-                          TicketRepository ticketRepository,
-                          FieldRepository fieldRepository
+                          EuroTicketRepository euroTicketRepository,
+                          LottoTicketRepository lottoTicketRepository,
+                          EuroFieldRepository euroFieldRepository,
+                          LottoFieldRepository lottoFieldRepository,
+                          TicketPriceService ticketPriceService, TicketOverviewRepository ticketOverviewRepository
     ) {
         this.gameDrawEuroRepository = gameDrawEuroRepository;
         this.gameDrawLottoRepository = gameDrawLottoRepository;
         this.playerRepository = playerRepository;
-        this.ticketRepository = ticketRepository;
-        this.fieldRepository = fieldRepository;
+        this.euroFieldRepository = euroFieldRepository;
+        this.euroTicketRepository = euroTicketRepository;
+        this.lottoFieldRepository = lottoFieldRepository;
+        this.lottoTicketRepository = lottoTicketRepository;
+        this.ticketPriceService = ticketPriceService;
+        this.ticketOverviewRepository = ticketOverviewRepository;
     }
 
     // Login
@@ -184,11 +196,17 @@ public class ViewController {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ungültige ID: " + id));
 
-        List<Ticket> tickets = ticketRepository.findByPlayer(player);
+        // Wir holen die echten Tickets, damit wir auf .getFields() zugreifen können
+        List<TicketLotto> lottoTickets = lottoTicketRepository.findByPlayer(player);
+        List<TicketEuro> euroTickets = euroTicketRepository.findByPlayer(player);
+
+        // Alles in eine Liste für die Tabelle
+        List<Object> allTickets = new ArrayList<>();
+        allTickets.addAll(lottoTickets);
+        allTickets.addAll(euroTickets);
 
         model.addAttribute("player", player);
-        model.addAttribute("tickets", tickets);
-
+        model.addAttribute("tickets", allTickets);
         model.addAttribute("contentPage", "/WEB-INF/jsp/pages/management/player-profile.jsp");
 
         return "layout/main-layout";
@@ -200,33 +218,33 @@ public class ViewController {
     @GetMapping("/management/ticket-table")
     public String loadTickets(
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir,
             Model model
     ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortField).ascending() :
+                Sort.by(sortField).descending();
 
-        List<Ticket> tickets;
+        List<TicketOverview> tickets;
 
         if (keyword != null && !keyword.isBlank()) {
-            tickets = ticketRepository.findAll((root, query, cb) -> {
-                var playerJoin = root.join("player");
-                var predicateUsername = cb.like(cb.lower(playerJoin.get("username")), "%" + keyword.toLowerCase() + "%");
-                return predicateUsername;
-            });
+            // Bei einer Suche zeigen wir alle Treffer (meist eh wenige)
+            tickets = ticketOverviewRepository.findByUsernameOptimized(keyword, sort);
         } else {
-            tickets = ticketRepository.findAll();
+            // Ohne Suche: Nur die ersten 10 (Page 0, Size 10)
+            Pageable limitTen = PageRequest.of(0, 10, sort);
+            tickets = ticketOverviewRepository.findAll(limitTen).getContent();
         }
 
-        List<Player> allPlayers = playerRepository.findAll(Sort.by("username"));
-
         model.addAttribute("tickets", tickets);
-        model.addAttribute("allPlayers", allPlayers);
+        // Optimierung: Nur Spieler-Namen und IDs laden, nicht das ganze Objekt
+        model.addAttribute("allPlayers", playerRepository.findAll(Sort.by("username")));
+
         model.addAttribute("keyword", keyword);
-
-        // Letzte Ziehungszahlen für Extra-Zahlen
-        GameDrawLotto latestLotto = gameDrawLottoRepository.findTopByOrderByIdDesc();
-        GameDrawEuro latestEuro = gameDrawEuroRepository.findTopByOrderByIdDesc();
-
-        model.addAttribute("latestLottoExtra", latestLotto != null ? latestLotto.getExtraNumbers() : "0");
-        model.addAttribute("latestEuroExtra", latestEuro != null ? latestEuro.getExtraNumbers() : "0");
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         model.addAttribute("contentPage", "/WEB-INF/jsp/pages/management/ticket-table.jsp");
         return "layout/main-layout";
@@ -239,124 +257,231 @@ public class ViewController {
     public String addTicket(
             @RequestParam Long playerId,
             @RequestParam String gameType,
-            @RequestParam String fieldsInput, // z.B. "1,2,3,4,5,6;7,8,9,10,11,12"
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate playDate
+            @RequestParam String fieldsInput,
+            @RequestParam String drawDay,
+            @RequestParam String losnummer, // Wichtig: Muss im JSP name="losnummer" entsprechen
+            @RequestParam(required = false, defaultValue = "1") int weeks,
+            @RequestParam(required = false) boolean spiel77,
+            @RequestParam(required = false) boolean super6,
+            @RequestParam(required = false) boolean glueck,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate validFrom
     ) {
-        // Spieler laden
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Spieler-ID: " + playerId));
 
-        // Neues Ticket erstellen
-        Ticket ticket = new Ticket();
-        ticket.setPlayer(player);
-        ticket.setGameType(gameType);
-        ticket.setDrawDate(playDate);
+        Player player = playerRepository.findById(playerId).orElseThrow();
 
-        // Felder erstellen
-        List<Field> fields = new ArrayList<>();
-        String[] fieldArr = fieldsInput.split(";");
+        if (gameType.equalsIgnoreCase("LOTTO")) {
+            TicketLotto ticket = new TicketLotto();
+            ticket.setPlayer(player);
+            ticket.setLosnummer(losnummer); // Behebt den Null-Fehler
+            ticket.setWednesday(drawDay.contains("MI") || drawDay.equals("BOTH"));
+            ticket.setSaturday(drawDay.contains("SA") || drawDay.equals("BOTH"));
+            ticket.setWeeksDuration(weeks);
+            ticket.setSpiel77(spiel77);
+            ticket.setSuper6(super6);
+            ticket.setGluecksspirale(glueck);
+            ticket.setValidFrom(validFrom);
 
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        BigDecimal pricePerField = gameType.equalsIgnoreCase("Lotto") ? BigDecimal.valueOf(1.2) : BigDecimal.valueOf(2.0);
+            List<LottoField> fields = new ArrayList<>();
+            // JS sendet Felder getrennt durch Pipe: "1,2,3,4,5,6,S|..."
+            String[] fieldArr = fieldsInput.split("\\|");
 
-        for (String f : fieldArr) {
-            String[] parts = f.split(",");
-            String extraNumber = "0";
-            String numbers = f;
+            for (String f : fieldArr) {
+                if (f.isBlank()) continue;
+                String[] parts = f.split(",");
 
-            if (parts.length > 6) {
-                extraNumber = parts[parts.length - 1];
-                String[] numberParts = Arrays.copyOfRange(parts, 0, parts.length - 1);
-                numbers = String.join(",", numberParts);
+                // Die ersten 6 sind Zahlen, der 7. Wert ist die Superzahl aus dem JS
+                String numbers = String.join(",", Arrays.copyOfRange(parts, 0, 6));
+                Integer superNumber = Integer.parseInt(parts[6]);
+
+                LottoField field = new LottoField();
+                field.setNumbers(numbers);
+                field.setSuperNumber(superNumber);
+                field.setLottoTicket(ticket);
+                fields.add(field);
             }
+            ticket.setFields(fields);
 
-            Field field = new Field();
-            field.setNumbers(numbers);
-            field.setExtraNumber(extraNumber);
-            field.setTicket(ticket); // WICHTIG für Cascade.ALL
-            fields.add(field);
+            BigDecimal total = ticketPriceService.calcLottoPrice(fields.size(),
+                    ticket.isWednesday(), ticket.isSaturday(), weeks,
+                    spiel77, super6, glueck);
+            ticket.setTotalPrice(total);
 
-            totalPrice = totalPrice.add(pricePerField);
+            lottoTicketRepository.save(ticket);
+
+        } else {
+            // EuroTicket
+            TicketEuro ticket = new TicketEuro();
+            ticket.setPlayer(player);
+            ticket.setLosnummer(losnummer); // Auch hier setzen!
+            ticket.setValidFrom(validFrom);
+            ticket.setSpiel77(spiel77);
+            ticket.setSuper6(super6);
+            ticket.setGluecksspirale(glueck);
+            // Eurojackpot nutzt drawCount oft für die Laufzeit
+            ticket.setDrawCount(weeks);
+
+            List<EuroField> fields = new ArrayList<>();
+            // JS sendet: "1,2,3,4,5;1,2|..."
+            String[] fieldArr = fieldsInput.split("\\|");
+
+            for (String f : fieldArr) {
+                if (f.isBlank()) continue;
+                String[] areaSplit = f.split(";"); // Trennt Zahlen von Eurozahlen
+
+                EuroField field = new EuroField();
+                field.setNumbers(areaSplit[0]);     // "1,2,3,4,5"
+                field.setEuroNumbers(areaSplit[1]); // "1,2"
+                field.setEuroTicket(ticket);
+                fields.add(field);
+            }
+            ticket.setFields(fields);
+
+            BigDecimal total = ticketPriceService.calcEuroPrice(fields.size(),
+                    drawDay.contains("FR") || drawDay.equals("BOTH"),
+                    drawDay.contains("DI") || drawDay.equals("BOTH"),
+                    spiel77, super6, glueck);
+            ticket.setTotalPrice(total);
+
+            euroTicketRepository.save(ticket);
         }
-
-        ticket.setFields(fields);
-        ticket.setTotalPrice(totalPrice);
-
-        // Ticket + Fields speichern
-        ticketRepository.save(ticket);
 
         return "redirect:/management/ticket-table";
     }
 
-    // =========================
-    // Ticket bearbeiten
-    // =========================
-    @PostMapping("/management/ticket/edit/{id}")
-    public String editTicket(
+    @PostMapping("/management/ticket/edit/{gameType}/{id}")
+    public String updateTicket(
+            @PathVariable String gameType,
             @PathVariable Long id,
-            @RequestParam Long playerId,
-            @RequestParam String gameType,
+            @RequestParam String losnummer,
             @RequestParam String fieldsInput,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate playDate
+            @RequestParam(required = false, defaultValue = "1") int weeks,
+            @RequestParam(required = false) boolean spiel77,
+            @RequestParam(required = false) boolean super6,
+            @RequestParam(required = false) boolean glueck,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate validFrom
     ) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Ticket-ID: " + id));
+        if ("LOTTO".equalsIgnoreCase(gameType)) {
+            TicketLotto ticket = lottoTicketRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Lotto-Ticket nicht gefunden: " + id));
 
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Spieler-ID: " + playerId));
+            ticket.setLosnummer(losnummer);
+            ticket.setSpiel77(spiel77);
+            ticket.setSuper6(super6);
+            ticket.setGluecksspirale(glueck);
+            ticket.setValidFrom(validFrom);
+            ticket.setWeeksDuration(weeks);
 
-        ticket.setPlayer(player);
-        ticket.setGameType(gameType);
-        ticket.setDrawDate(playDate);
+            // --- KORREKTUR START ---
+            // Liste leeren statt deleteAll (Hibernate kümmert sich um orphans)
+            ticket.getFields().clear();
 
-        // Alte Felder löschen
-        fieldRepository.deleteAll(ticket.getFields());
+            List<LottoField> newFields = new ArrayList<>();
+            String[] fieldArr = fieldsInput.split("\\|");
+            for (String f : fieldArr) {
+                if (f.isBlank()) continue;
+                String[] parts = f.split(",");
+                String numbers = String.join(",", Arrays.copyOfRange(parts, 0, 6));
+                Integer superNumber = Integer.parseInt(parts[6]);
 
-        // Neue Felder erstellen
-        List<Field> fields = new ArrayList<>();
-        String[] fieldArr = fieldsInput.split(";");
-
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        BigDecimal pricePerField = gameType.equalsIgnoreCase("Lotto") ? BigDecimal.valueOf(1.2) : BigDecimal.valueOf(2.0);
-
-        for (String f : fieldArr) {
-            String[] parts = f.split(",");
-            String extraNumber = "0";
-            String numbers = f;
-
-            if (parts.length > 6) {
-                extraNumber = parts[parts.length - 1];
-                String[] numberParts = Arrays.copyOfRange(parts, 0, parts.length - 1);
-                numbers = String.join(",", numberParts);
+                LottoField field = new LottoField();
+                field.setNumbers(numbers);
+                field.setSuperNumber(superNumber);
+                field.setLottoTicket(ticket);
+                newFields.add(field);
             }
 
-            Field field = new Field();
-            field.setNumbers(numbers);
-            field.setExtraNumber(extraNumber);
-            field.setTicket(ticket);
-            fields.add(field);
+            // WICHTIG: Bestehende Liste befüllen statt eine neue Liste zu setzen!
+            ticket.getFields().addAll(newFields);
+            // --- KORREKTUR ENDE ---
 
-            totalPrice = totalPrice.add(pricePerField);
+            BigDecimal total = ticketPriceService.calcLottoPrice(
+                    ticket.getFields().size(), ticket.isWednesday(), ticket.isSaturday(),
+                    weeks, spiel77, super6, glueck);
+            ticket.setTotalPrice(total);
+
+            lottoTicketRepository.save(ticket);
+
+        } else if ("EURO".equalsIgnoreCase(gameType)) {
+            TicketEuro ticket = euroTicketRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Euro-Ticket nicht gefunden: " + id));
+
+            ticket.setLosnummer(losnummer);
+            ticket.setSpiel77(spiel77);
+            ticket.setSuper6(super6);
+            ticket.setGluecksspirale(glueck);
+            ticket.setValidFrom(validFrom);
+            ticket.setDrawCount(weeks);
+
+            // --- KORREKTUR START ---
+            ticket.getFields().clear();
+
+            List<EuroField> newFieldsList = new ArrayList<>();
+            String[] fieldArr = fieldsInput.split("\\|");
+            for (String f : fieldArr) {
+                if (f.isBlank()) continue;
+                String[] areaSplit = f.split(";");
+
+                EuroField field = new EuroField();
+                field.setNumbers(areaSplit[0]);
+                field.setEuroNumbers(areaSplit[1]);
+                field.setEuroTicket(ticket);
+                newFieldsList.add(field);
+            }
+
+            ticket.getFields().addAll(newFieldsList);
+            // --- KORREKTUR ENDE ---
+
+            BigDecimal total = ticketPriceService.calcEuroPrice(
+                    ticket.getFields().size(), true, true, spiel77, super6, glueck);
+            ticket.setTotalPrice(total);
+
+            euroTicketRepository.save(ticket);
         }
 
-        ticket.setFields(fields);
-        ticket.setTotalPrice(totalPrice);
-
-        ticketRepository.save(ticket);
         return "redirect:/management/ticket-table";
+    }
+
+    @GetMapping("/management/ticket/details/{gameType}/{id}")
+    @ResponseBody
+    public Map<String, Object> getTicketDetails(@PathVariable String gameType, @PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
+        if ("LOTTO".equalsIgnoreCase(gameType)) {
+            TicketLotto ticket = lottoTicketRepository.findById(id).orElseThrow();
+            response.put("type", "LOTTO");
+            response.put("playerId", ticket.getPlayer().getId()); // WICHTIG
+            response.put("losnummer", ticket.getLosnummer());
+            response.put("validFrom", ticket.getValidFrom().toString()); // Als String für das Datum-Feld
+            response.put("spiel77", ticket.isSpiel77());
+            response.put("super6", ticket.isSuper6());
+            response.put("gluecksspirale", ticket.isGluecksspirale());
+            response.put("fields", ticket.getFields());
+        } else {
+            TicketEuro ticket = euroTicketRepository.findById(id).orElseThrow();
+            response.put("type", "EURO");
+            response.put("playerId", ticket.getPlayer().getId()); // WICHTIG
+            response.put("losnummer", ticket.getLosnummer());
+            response.put("validFrom", ticket.getValidFrom().toString());
+            response.put("spiel77", ticket.isSpiel77());
+            response.put("super6", ticket.isSuper6());
+            response.put("gluecksspirale", ticket.isGluecksspirale());
+            response.put("fields", ticket.getFields());
+        }
+        return response;
     }
 
     // =========================
     // Ticket löschen
     // =========================
-    @PostMapping("/management/ticket/delete/{id}")
-    public String deleteTicket(@PathVariable Long id) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Ticket-ID: " + id));
-        ticketRepository.delete(ticket);
+    @PostMapping("/management/ticket/delete/{gameType}/{id}")
+    public String deleteTicket(@PathVariable String gameType, @PathVariable Long id) {
+        if (gameType.equalsIgnoreCase("LOTTO")) {
+            lottoTicketRepository.deleteById(id);
+        } else {
+            euroTicketRepository.deleteById(id);
+        }
         return "redirect:/management/ticket-table";
     }
-
 
     @GetMapping("/error")
     public String error(Model model) {
