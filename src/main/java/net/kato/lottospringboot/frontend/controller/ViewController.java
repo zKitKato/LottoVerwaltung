@@ -3,7 +3,6 @@ package net.kato.lottospringboot.frontend.controller;
 import net.kato.lottospringboot.backend.dao.*;
 import net.kato.lottospringboot.backend.model.*;
 import net.kato.lottospringboot.backend.service.TicketPriceService;
-import net.kato.lottospringboot.backend.specification.PlayerSpecification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

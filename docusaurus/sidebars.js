@@ -33,8 +33,10 @@ const sidebars = {
             items: [
                 'user-manual/installation',
                 'user-manual/usermanual',
+                'user-manual/dashboard',
                 'user-manual/spieler-verwaltung',
                 'user-manual/ticket-verwaltung',
+                'user-manual/ziehungen',
             ],
         },
         // 3. Kategorie für den "code" Ordner
@@ -42,7 +44,12 @@ const sidebars = {
             type: 'category',
             label: 'Programmierung & Code',
             items: [
-                'code/code', // Pfad: docs/code/code.md
+                'code/code',
+                'code/architektur',
+                'code/models',
+                'code/services',
+                'code/security-config',
+                'code/kritische-konfigurationen',
             ],
         },
         'roadmap',

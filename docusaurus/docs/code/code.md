@@ -8,8 +8,3 @@ sidebar_label: Architektur
 
 Dieser Bereich ist für Entwickler gedacht.
 
-```javascript
-// Beispiel-Funktion
-function berechneLotto() {
-  console.log("Ziehung läuft...");
-}

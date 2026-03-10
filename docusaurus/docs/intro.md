@@ -9,5 +9,3 @@ slug: /intro
 
 Hier findest du alle Informationen zur Installation und Nutzung.
 
-* **User Manual**: Wie bediene ich die App?
-* **Code**: Wie ist die Software aufgebaut?
