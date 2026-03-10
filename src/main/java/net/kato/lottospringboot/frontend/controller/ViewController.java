@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -139,22 +140,36 @@ public class ViewController {
 
     // Spieler hinzufügen
     @PostMapping("/management/player/add")
-    public String addPlayer(
+    @ResponseBody // Wichtig: Wir senden Daten/Status, keine HTML-Seite
+    public ResponseEntity<?> addPlayer(
             @RequestParam String username,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate spieltMitSeit,
             @RequestParam String spiele,
             @RequestParam BigDecimal kontostand,
             @RequestParam String status
     ) {
-        Player player = new Player();
-        player.setUsername(username);
-        player.setSpieltMitSeit(spieltMitSeit);
-        player.setSpiele(spiele);
-        player.setKontostand(kontostand);
-        player.setStatus(status);
+        try {
+            Player player = new Player();
+            player.setUsername(username);
+            player.setSpieltMitSeit(spieltMitSeit);
+            player.setSpiele(spiele);
+            player.setKontostand(kontostand);
+            player.setStatus(status);
 
-        playerRepository.save(player);
-        return "redirect:/management/player-table";
+            playerRepository.save(player);
+
+            // Erfolg: Wir senden ein leeres OK (200)
+            return ResponseEntity.ok().build();
+
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Fehler: Name existiert bereits (409 Conflict)
+            return ResponseEntity.status(org.springframework.http.HttpStatus.CONFLICT)
+                    .body("Der Spielername '" + username + "' ist bereits vergeben.");
+        } catch (Exception e) {
+            // Allgemeiner Fehler (500)
+            return ResponseEntity.internalServerError()
+                    .body("Ein unerwarteter Fehler ist aufgetreten.");
+        }
     }
 
     // Spieler bearbeiten speichern

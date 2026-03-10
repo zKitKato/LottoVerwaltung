@@ -285,6 +285,11 @@
                 </div>
 
                 <div class="modal-body">
+                    <div id="playerErrorMessage" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span id="playerErrorText">Ein Spieler mit diesem Namen existiert bereits!</span>
+                    </div>
+
                     <div class="form-group">
                         <label>Username</label>
                         <input type="text" name="username" class="form-control" id="editUsername" required>
@@ -361,6 +366,46 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('editSpieltMitSeit').value = today;
     }
+
+    document.getElementById('editPlayerForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Verhindert Neuladen der Seite
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const errorDiv = document.getElementById('playerErrorMessage');
+        const errorText = document.getElementById('playerErrorText');
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new URLSearchParams(formData), // Schickt es als klassisches Formular-Format
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Erfolg: Seite neu laden um Änderungen zu sehen
+                    window.location.reload();
+                } else if (response.status === 409 || response.status === 500) {
+                    // Fehler: Nachricht anzeigen
+                    errorDiv.classList.remove('d-none');
+                    // Optional: Nachricht vom Server nutzen
+                    return response.text().then(text => {
+                        if (text) errorText.innerText = text;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorDiv.classList.remove('d-none');
+                errorText.innerText = "Ein unerwarteter Fehler ist aufgetreten.";
+            });
+    });
+
+    // Beim Öffnen des Modals den alten Fehler verstecken
+    editModal.addEventListener('show.bs.modal', function () {
+        document.getElementById('playerErrorMessage').classList.add('d-none');
+    });
 </script>
 
 

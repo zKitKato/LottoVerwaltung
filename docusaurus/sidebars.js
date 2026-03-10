@@ -24,12 +24,28 @@ const sidebars = {
     // But you can create a sidebar manually
 
     tutorialSidebar: [
+        // 1. Das Intro ganz oben (Dateiname: docs/intro.md)
         'intro',
+        // 2. Kategorie für das "User-Manual"
         {
             type: 'category',
-            label: 'Docs',
-            items: ['intro'],
+            label: 'Benutzerhandbuch',
+            items: [
+                'user-manual/installation',
+                'user-manual/usermanual',
+                'user-manual/spieler-verwaltung',
+                'user-manual/ticket-verwaltung',
+            ],
         },
+        // 3. Kategorie für den "code" Ordner
+        {
+            type: 'category',
+            label: 'Programmierung & Code',
+            items: [
+                'code/code', // Pfad: docs/code/code.md
+            ],
+        },
+        'roadmap',
     ],
 
 };

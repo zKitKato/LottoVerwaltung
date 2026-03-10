@@ -1,54 +1,54 @@
 {
   "lotto_gewinnzahlen": {
-    "Datum": "04.03.2026",
-    "Ziehung": "Mittwoch",
-    "Superzahl": 3,
+    "Datum": "07.03.2026",
+    "Ziehung": "Samstag",
+    "Superzahl": 4,
     "Zahl": [
-      40,
-      15,
-      24,
-      37,
-      17,
-      1
+      16,
+      38,
+      41,
+      5,
+      39,
+      20
     ]
   },
   "eurojackpot_gewinnzahlen": {
-    "Datum": "03.03.2026",
+    "Datum": "10.03.2026",
     "Ziehung": "Dienstag",
     "Eurozahl": [
-      2,
-      10
+      10,
+      4
     ],
     "Zahl": [
-      1,
-      49,
-      14,
-      35,
-      9
+      3,
+      18,
+      28,
+      2,
+      17
     ]
   },
   "lotto_jackpot": {
-    "DatumNaechsteZiehung": "04.03.2026",
-    "ErwarteterJackpot1": "26000000.00",
-    "ErwarteterJackpot2": "3000000.00",
+    "DatumNaechsteZiehung": "11.03.2026",
+    "ErwarteterJackpot1": "32000000.00",
+    "ErwarteterJackpot2": "1000000.00",
     "NaechsteZiehung": "Mittwoch"
   },
   "eurojackpot_jackpot": {
-    "DatumNaechsteZiehung": "06.03.2026",
-    "ErwarteterJackpot1": "10000000.00",
-    "ErwarteterJackpot2": "0.00",
+    "DatumNaechsteZiehung": "13.03.2026",
+    "ErwarteterJackpot1": "22000000.00",
+    "ErwarteterJackpot2": "1000000.00",
     "NaechsteZiehung": "Freitag"
   },
   "lotto_ziehung": {
-    "AnnahmeschlussDatum": "07.03.2026",
-    "AnnahmeschlussUhrzeit": "19:00:00",
-    "Datum": "07.03.2026",
-    "Uhrzeit": "19:25:00"
+    "AnnahmeschlussDatum": "11.03.2026",
+    "AnnahmeschlussUhrzeit": "18:00:00",
+    "Datum": "11.03.2026",
+    "Uhrzeit": "18:25:00"
   },
   "eurojackpot_ziehung": {
-    "AnnahmeschlussDatum": "06.03.2026",
+    "AnnahmeschlussDatum": "13.03.2026",
     "AnnahmeschlussUhrzeit": "19:00:00",
-    "Datum": "06.03.2026",
+    "Datum": "13.03.2026",
     "Uhrzeit": "20:00:00"
   }
 }

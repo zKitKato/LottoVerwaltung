@@ -1,9 +1,13 @@
 ---
-sidebar_position: 1
+id: intro
+title: Willkommen
+sidebar_label: Einleitung
+slug: /intro
 ---
 
+# Willkommen zur Lotto-Verwaltung
 
-# Hello World
+Hier findest du alle Informationen zur Installation und Nutzung.
 
-
-This is a test wirte
+* **User Manual**: Wie bediene ich die App?
+* **Code**: Wie ist die Software aufgebaut?
