@@ -89,40 +89,48 @@ Um die Abhängigkeiten nachvollziehen zu können, dient die folgende `pom.xml` a
 
 ## Mehrbenutzerfähigkeit
 
-Mehrbenutzerfähigkeit & Thread-Modell
+### Mehrbenutzerfähigkeit & Thread-Modell
+
 Ein zentraler Aspekt der Lotto-Applikation ist die Fähigkeit, Anfragen von vielen Spielern gleichzeitig zu verarbeiten.
 Spring Boot nutzt hierfür den eingebetteten Apache Tomcat Webserver.
 
-Das "Thread-per-Request"-Modell
+### Das "Thread-per-Request"-Modell
+
 Tomcat arbeitet standardmäßig nach dem Thread-per-Request-Prinzip. Das bedeutet:
 
-Thread-Pool: Beim Start der Applikation initialisiert Tomcat einen Pool von Worker-Threads (standardmäßig bis zu 200).
+- **Thread-Pool:** Beim Start der Applikation initialisiert Tomcat einen Pool von Worker-Threads (standardmäßig bis zu
+  200).
 
-Zuweisung: Jede eingehende HTTP-Anfrage eines Nutzers wird von einem freien Thread aus diesem Pool übernommen.
+- **Zuweisung:** Jede eingehende HTTP-Anfrage eines Nutzers wird von einem freien Thread aus diesem Pool übernommen.
 
-Isolierung: Dieser Thread begleitet die Anfrage durch den gesamten Lebenszyklus – vom Controller über den Service bis
-zur Datenbank und zurück.
+- **Isolierung:** Dieser Thread begleitet die Anfrage durch den gesamten Lebenszyklus – vom Controller über den Service
+  bis
+  zur Datenbank und zurück.
 
-Freigabe: Sobald die Antwort (JSP/HTML) an den Browser gesendet wurde, kehrt der Thread in den Pool zurück und steht für
-den nächsten Benutzer zur Verfügung.
+- **Freigabe:** Sobald die Antwort (JSP/HTML) an den Browser gesendet wurde, kehrt der Thread in den Pool zurück und
+  steht für
+  den nächsten Benutzer zur Verfügung.
 
-Visualisierung der Verarbeitung
-Wenn Spieler A ein Ticket kauft und Spieler B gleichzeitig seinen Kontostand prüft, geschieht Folgendes:
+### Visualisierung der Verarbeitung
 
-Thread 1 bearbeitet TicketPriceService.calcLottoPrice() für Spieler A.
+Wenn `Spieler A` ein Ticket kauft und `Spieler B` gleichzeitig seinen Kontostand prüft, geschieht Folgendes:
 
-Thread 2 liest parallel dazu die Daten aus dem PlayerRepository für Spieler B.
+- `Thread 1` bearbeitet `TicketPriceService.calcLottoPrice()` für Spieler A.
 
-Thread-Sicherheit in Spring-Beans
+- `Thread 2` liest parallel dazu die Daten aus dem `PlayerRepository` für Spieler B.
+
+### Thread-Sicherheit in Spring-Beans
+
 Da Spring-Beans (Controller, Services, Repositories) standardmäßig Singletons sind (es existiert nur eine Instanz pro
 Anwendung), müssen sie so programmiert sein, dass sie von mehreren Threads gleichzeitig sicher genutzt werden können.
 
-Statelessness (Zustandslosigkeit): Unsere Services (z. B. TicketPriceService) speichern keine nutzerspezifischen Daten
-in Klassenvariablen. Daten werden nur innerhalb von Methoden verarbeitet und als lokale Variablen auf dem Stack des
-jeweiligen Threads gehalten.
+- **Statelessness (Zustandslosigkeit):** Unsere Services (z. B. TicketPriceService) speichern keine nutzerspezifischen
+  Daten
+  in Klassenvariablen. Daten werden nur innerhalb von Methoden verarbeitet und als lokale Variablen auf dem `Stack` des
+  jeweiligen Threads gehalten.
 
-Datenbank-Isolierung: Die H2-Datenbank und Spring Data JPA sorgen dafür, dass Datenbanktransaktionen voneinander
-isoliert bleiben, selbst wenn zwei Threads gleichzeitig auf dieselbe Tabelle zugreifen.
+- **Datenbank-Isolierung:** Die H2-Datenbank und Spring Data JPA sorgen dafür, dass Datenbanktransaktionen voneinander
+  isoliert bleiben, selbst wenn zwei Threads gleichzeitig auf dieselbe Tabelle zugreifen.
 
 Wichtige Konfigurationsparameter
 In der application.properties kann das Verhalten des Webservers für hohe Lasten angepasst werden:

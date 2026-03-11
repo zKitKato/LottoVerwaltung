@@ -57,55 +57,65 @@ public class DataImportService {
 }
 ```
 
-1. Constructor Injection (Die Werkzeuge)
-   Statt @Autowired nutzt du hier die Constructor Injection. Das ist "Clean Code", weil der Service ohne die beiden
-   Repositories gar nicht erst gestartet werden kann. Er verlangt beim Erstellen sofort nach dem Zugriff auf die Lotto-
-   und Euro-Tabellen.
+### 1. Constructor Injection (Die Werkzeuge)
 
-2. JSON-Parsing mit Jackson
-   Mit dem ObjectMapper liest du das Dateisystem aus. Der JsonNode root ist der Einstiegspunkt in den gesamten Baum
-   deiner JSON-Datei. Über root.get("...") hangelst du dich tiefer in die Struktur der Datei (z.B. zu den Gewinnzahlen
-   oder dem Jackpot).
+Statt `@Autowired` nutzt du hier die Constructor Injection. Das ist "Clean Code", weil der Service ohne die beiden
+Repositories gar nicht erst gestartet werden kann. Er verlangt beim Erstellen sofort nach dem Zugriff auf die Lotto-
+und Euro-Tabellen.
 
-3. Dubletten-Schutz (Existenzprüfung)
-   Das ist ein sehr wichtiger Teil:
+### 2. JSON-Parsing mit Jackson
 
-```Java
-if(lottoRepo.findByGameDate(lottoDate).
+Mit dem ObjectMapper liest du das Dateisystem aus. Der JsonNode root ist der Einstiegspunkt in den gesamten Baum
+deiner JSON-Datei. Über `root.get("...")` hangelst du dich tiefer in die Struktur der Datei (z.B. zu den Gewinnzahlen
+oder dem Jackpot).
 
-isEmpty())
+### 3. Dubletten-Schutz (Existenzprüfung)
+
+Das ist ein sehr wichtiger Teil:
+
+```java
+lottoRepo.findByGameDate(lottoDate).
+
+isEmpty()
 ```
 
-Bevor der Service neue Zahlen speichert, prüft er anhand des Datums (gameDate), ob diese Ziehung bereits in der
-Datenbank existiert. Ohne diese Prüfung hättest du nach jedem Skript-Lauf die gleichen Ziehungen mehrfach in der
-Datenbank.
+Bevor der Service neue Zahlen speichert, prüft er anhand des Datums(`gameDate`),ob diese Ziehung bereits in der
+Datenbank existiert. Ohne diese Prüfung hättest du nach jedem Skript- Lauf die
+gleichen Ziehungen mehrfach in der Datenbank .
 
-4. Datentyp-Konvertierung
-   Da JSON fast alles als Text (String) liefert, führt der Service wichtige Umwandlungen durch:
+### 4. Datentyp-Konvertierung
 
-BigDecimal: Der Jackpot wird von Text in BigDecimal umgewandelt, damit im System präzise mit dem Geldwert gerechnet
-werden kann.
+Da JSON fast alles als Text(`String`) liefert,führt der Service wichtige Umwandlungen durch:
 
-String-Repräsentation: Die Zahlenlisten werden im JSON als Array geliefert und hier sauber für die Speicherung in der
-H2-Datenbank vorbereitet.
+- **`BigDecimal`:**
+  Der Jackpot wird von Text in `BigDecimal` umgewandelt, damit im System präzise mit dem Geldwert
+  gerechnet werden kann.
 
-5. Fehlerbehandlung (Robusheit)
-   Der Service prüft mit if (lottoGewinn != null && ...), ob alle erwarteten Felder in der Datei vorhanden sind. Fehlt
-   ein Teil der Daten (z.B. weil die API-Antwort fehlerhaft war), stürzt das Programm nicht ab, sondern gibt eine
-   Warnmeldung in der Konsole aus.
+- **String-Repräsentation:**
+  Die Zahlenlisten werden im JSON als Array geliefert und hier sauber für die Speicherung in der H2-Datenbank
+  vorbereitet.
+
+### 5. Fehlerbehandlung(Robusheit)
+
+Der Service prüft mit `if(lottoGewinn !=null&&...)`, ob alle erwarteten Felder in der Datei vorhanden sind. Fehlt ein
+Teil
+der Daten(z.B.weil die API-Antwort fehlerhaft war), stürzt das Programm nicht ab, sondern gibt eine Warnmeldung in der
+Konsole aus.
 
 ---
 
 ## TicketPriceService
 
-Der `TicketPriceService` ist die zentrale Komponente für die Abrechnung. Er berechnet dynamisch den Gesamtpreis eines
-Tippscheins basierend auf der Anzahl der Felder, den gewählten Ziehungstagen und den aktivierten Zusatzspielen.
+Der `TicketPriceService` ist die zentrale Komponente für die Abrechnung. Er berechnet
+dynamisch den Gesamtpreis eines Tippscheins basierend auf der Anzahl der Felder, den gewählten Ziehungstagen und den
+aktivierten Zusatzspielen.
 
 ### Der Quellcode
 
 ```java
 
 @Service
+
 public class TicketPriceService {
 
     private static final BigDecimal LOTTO_FIELD_PRICE = BigDecimal.valueOf(1.20);
@@ -127,31 +137,32 @@ public class TicketPriceService {
 }
 ```
 
-Erläuterung der Preiskalkulation (Deep Dive)
-Hier wird die mathematische Logik hinter der Preisermittlung der Tippscheine im Detail erläutert:
+### 1. Konstante Preisstruktur
 
-1. Konstante Preisstruktur
-   Die Anwendung nutzt static final BigDecimal Werte für die Preise (z. B. 1,20 € pro Lottofeld). Dies ist
-   architektonisch vorteilhaft, da diese Werte unveränderlich (immutable) sind. Sollte die Lottogesellschaft die Preise
-   anpassen, müssen die Änderungen nur an dieser einen zentralen Stelle im Code vorgenommen werden.
+Die Anwendung nutzt static final BigDecimal Werte für die Preise (z. B. 1,20 € pro Lottofeld). Dies ist
+architektonisch vorteilhaft, da diese Werte unveränderlich (`immutable`) sind. Sollte die Lottogesellschaft die Preise
+anpassen, müssen die Änderungen nur an dieser einen zentralen Stelle im Code vorgenommen werden.
 
-2. Multiplikator-Logik (Die Ziehungstage)
-   Der Service ermittelt zunächst die Anzahl der Ziehungen pro Woche, an denen der Schein teilnimmt:
+### 2. Multiplikator-Logik (Die Ziehungstage)
 
-Lotto 6aus49: Mittwoch (mi) und Samstag (sa).
+Der Service ermittelt zunächst die Anzahl der Ziehungen pro Woche, an denen der Schein teilnimmt:
 
-Eurojackpot: Dienstag (di) und Freitag (fr).
+- `Lotto 6aus49:` Mittwoch (mi) und Samstag (sa).
+
+- `Eurojackpot:` Dienstag (di) und Freitag (fr).
 
 Daraus ergibt sich der Faktor drawsPerWeek. Wählt ein Nutzer beide verfügbaren Tage, verdoppeln sich sowohl der
 Basispreis der Felder als auch die Kosten für die gewählten Zusatzspiele automatisch.
 
-3. Berechnung der Zusatzspiele
-   Zusatzoptionen wie Spiel 77, Super 6 oder die Glücksspirale werden pro Ziehungstag berechnet. Der Service addiert
-   alle aktiven Optionen zu einem extraPerDraw-Betrag und multipliziert diesen anschließend mit der Anzahl der
-   tatsächlichen Ziehungen.
+### 3. Berechnung der Zusatzspiele
 
-4. Wochenfaktor (Laufzeit)
-   Speziell bei Lotto-Tickets wird der Parameter weeks (Wochenlaufzeit) berücksichtigt. Der berechnete
-   Wochengesamtpreis (Felder + Zusatzspiele) wird mit der Laufzeit multipliziert. Dies stellt sicher, dass Dauerscheine
-   über mehrere Wochen korrekt kalkuliert und vom Spielerkonto abgebucht werden können.
+Zusatzoptionen wie Spiel 77, Super 6 oder die Glücksspirale werden pro Ziehungstag berechnet. Der Service addiert
+alle aktiven Optionen zu einem extraPerDraw-Betrag und multipliziert diesen anschließend mit der Anzahl der
+tatsächlichen Ziehungen.
+
+### 4. Wochenfaktor (Laufzeit)
+
+Speziell bei Lotto-Tickets wird der Parameter weeks (Wochenlaufzeit) berücksichtigt. Der berechnete
+Wochengesamtpreis `(Felder + Zusatzspiele)` wird mit der Laufzeit multipliziert. Dies stellt sicher, dass Dauerscheine
+über mehrere Wochen korrekt kalkuliert und vom Spielerkonto abgebucht werden können.
 

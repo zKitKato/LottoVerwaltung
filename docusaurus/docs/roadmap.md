@@ -13,36 +13,38 @@ Priorisierung erfolgt auf Basis der funktionalen Relevanz für den stabilen Betr
 
 ## Phase 1: Optimierung der Kernfunktionen (Kurzfristig)
 
+### Finanz-Logik & Kontostand-Management
+
+* **Automatisierte Verrechnung**: Direkte Kopplung der Ticket-Erstellung mit dem Spielerkonto. Bei Kauf eines Tickets
+  wird der `totalPrice` automatisch vom `kontostand` des Spielers abgezogen.
+* **Liquiditäts-Alerts**: Implementierung eines visuellen Warnsystems (Alerts) im Dashboard und in der Spieler-Tabelle,
+  sobald ein Kontostand ins Minus rutscht oder ein definiertes Limit unterschreitet.
+* **Transaktions-Historie**: Protokollierung jeder Kontobewegung (Einzahlung, Ticketkauf, Gewinn) für eine lückenlose
+  Nachverfolgbarkeit.
+
 ### Erweiterte Ticket-Suche & Filterung
 
 * **Zeitraum-Filter**: Implementierung einer Kalender-Auswahl zur präzisen Eingrenzung von Tippscheinen nach
   Ziehungsdatum.
-* **Status-Filter**: Einführung von Schnellfiltern für "Offene", "Gewonnene" und "Abgelaufene" Tickets in der Übersicht.
-* **Export-Funktion**: Möglichkeit zum Export der gefilterten Ticket-Listen in das CSV- oder PDF-Format für
-  buchhalterische Zwecke.
-
-### Verfeinerung der Validierung
-
-* **Dynamische Guthabenprüfung**: Integration einer Echtzeit-Warnung bereits während der Ticketerstellung, falls das
-  Guthaben nicht ausreicht.
-* **Erweiterte Dublettenprüfung**: Optionale Warnmeldung bei identischen Tipps für verschiedene Ziehungszeiträume.
+* **Export-Funktion**: Möglichkeit zum Export der gefilterten Listen in das CSV- oder PDF-Format für buchhalterische
+  Zwecke.
 
 ---
 
 ## Phase 2: Automatisierung und Reporting (Mittelfristig)
 
-### Vollautomatisierte Gewinnermittlung
+### Gewinnermittlung & Finanz-Reporting
 
-* **Cron-Jobs**: Automatisierung des `./pullLotto.sh` Skripts, um Ziehungsdaten ohne manuelles Eingreifen täglich oder
-  wöchentlich zu aktualisieren.
-* **Gewinnklassen-Logik**: Erweiterung der Trefferermittlung um die offiziellen Gewinnklassen (Quote) zur Berechnung der
-  exakten Gewinnsummen.
-* **Benachrichtigungssystem**: Implementierung eines Mail-Services, der Spieler automatisch über Gewinne informiert.
+* **Vollautomatisierte Gewinnprüfung**: Kopplung der Ziehungsdaten mit den abgegebenen Tipps zur automatischen
+  Identifizierung von Gewinnern.
+* **Gewinn-Verlust-Rechnung (G&V)**: Einführung eines Reporting-Moduls, das die Einsätze den Gewinnen gegenüberstellt (
+  auf Spieler-Ebene und für das Gesamtsystem).
+* **Cron-Jobs**: Automatisierung des `./pullLotto.sh` Skripts für tägliche Daten-Updates ohne manuellen Eingriff.
 
 ### Dashboard-Statistiken
 
-* **Finanzübersicht**: Visualisierung der Gesamteinsätze vs. Gesamtauszahlungen im Dashboard.
-* **Spieler-Analysen**: Grafische Darstellung der aktivsten Spieler und der beliebtesten Lotterie-Typen.
+* **Finanz-Visualisierung**: Grafische Darstellung der Cashflow-Entwicklung (Einsätze vs. Auszahlungen).
+* **Benachrichtigungssystem**: Automatisierter Mail-Versand bei Gewinnbenachrichtigungen oder kritischem Kontostand.
 
 ---
 
@@ -50,22 +52,23 @@ Priorisierung erfolgt auf Basis der funktionalen Relevanz für den stabilen Betr
 
 ### Erweiterung der Lotterie-Typen
 
-* **Zusatzlotterien**: Integration von Spiel 77 und Super 6 in die Ticket-Verwaltung und Gewinnprüfung.
-* **Systemscheine**: Unterstützung für Voll- und Teilsystemscheine bei Lotto 6aus49 und Eurojackpot.
+* **Zusatzlotterien & Systemscheine**: Vollständige Integration von Spiel 77, Super 6 sowie Unterstützung für Voll- und
+  Teilsystemscheine.
+* **Rollenbasiertes Rechtesystem (RBAC)**: Einführung von Nutzerrollen (Admin vs. Standard-User) zur Absicherung
+  sensibler Finanzdaten.
 
-### Architektur und Sicherheit
+### Architektur-Upgrades
 
-* **Rollenbasiertes Rechtesystem (RBAC)**: Differenzierung zwischen Administratoren (Vollzugriff) und Standard-Nutzern (
-  nur eigene Tickets/Profil).
-* **API-Dokumentation**: Vollständige Bereitstellung einer Swagger/OpenAPI-Dokumentation für die Backend-Endpunkte.
-* **Datenbank-Migration**: Optionale Unterstützung für PostgreSQL oder MySQL als Alternative zur embedded H2-Datenbank
-  für den produktiven Einsatz.
+* **Datenbank-Migration**: Unterstützung für PostgreSQL oder MySQL für den produktiven Einsatz außerhalb der
+  H2-Umgebung.
+* **API-Dokumentation**: Bereitstellung einer Swagger/OpenAPI-Schnittstelle für externe Integrationen.
 
 ---
 
 ## Status der aktuellen Version (v0.0.4-alpha)
 
 * [x] Grundlegende Spieler- und Ticketverwaltung.
-* [ ] Manuelle Gewinnermittlung via Skript-Trigger.
-* [ ] Basis-Validierung (Guthaben & Dubletten).
-* [ ] Automatisierte Benachrichtigungen (Geplant für Phase 2).
+* [x] Basis-Layout und Navigationsstruktur.
+* [ ] Automatisierte Kontostands-Verrechnung (In Arbeit).
+* [ ] Gewinn-Verlust-Reporting (Geplant für Phase 2).
+* [ ] Minus-Alerts für Spieler (Geplant für Phase 1).

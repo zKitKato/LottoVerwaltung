@@ -84,7 +84,7 @@ Beispiel: Das JSP-Snippet
 3. Funktionsweise der Kommunikation (Deep Dive)
    Der Datenaustausch basiert auf drei Mechanismen:
 
-A. Die forEach-Schleife (<c:forEach>)
+A. Die forEach-Schleife (`<c:forEach>`)
 Das Attribut items="${gameEuro}" greift auf die Liste zu, die der Controller zuvor in das Model gelegt hat. Mit var="
 draw" wird für jedes Objekt in der Liste ein lokaler Name vergeben, der innerhalb der Schleife gültig ist.
 
