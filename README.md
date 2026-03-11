@@ -17,8 +17,8 @@ graph TD
     end
 
 %% Kommunikationswege
-    RemotePC -- " 1. Sicherer VPN Tunnel " --> VPN
-    VPN -- " 2. Zugriff auf App & Docs " --> DockerStack
+    RemotePC -- " 1. VPN Tunnel " --> VPN
+    VPN -- " 2. Zugriff auf Applikation " --> DockerStack
     LocalPC -- " Direkter LAN Zugriff " --> App
     LocalPC -- " Dokumentation lesen " --> Docs
     App <--> DB
